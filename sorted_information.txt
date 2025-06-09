@@ -1,0 +1,17 @@
+Aisyah Binti Rahman | 231203277 | syah.rahman@mmu.edu.my   | 3 | 0 |        | Ja |  HTML, Communication                          | Soft | e Developer           
+Kevin Lim | 231203278 | vin.lim@mmu.edu.my       | 2 | 0 | ness   | Ma | ting, Sales, Data Analysis                    | Mark | ng Assistant          
+Nurul Izzati | 231203279 | rul.izzati@mmu.edu.my    | 3 | 0 |        | Gr | ic Design, Adobe Illustrator, HTML            | Grap |  Designer             
+Arvind Raj | 231203280 | vind.raj@mmu.edu.my      | 2 | 0 | unting | Fi | cial Reporting, Excel, Auditing               | Acco | ing Intern            
+Sarah Wong | 231203281 | rah.wong@mmu.edu.my      | 3 | 0 | ness   | Pu | c Speaking, SEO, Business Management          | Busi | s Analyst             
+Faizal Mohd | 231203282 | izal.mohd@mmu.edu.my     | 3 | 0 |        | C+ | MySQL, Network Security                       | Netw |  Administrator        
+Michelle Tan | 231203283 | chelle.tan@mmu.edu.my    | 3 | 0 |        | UI |  Design, Figma, HTML                          | UI/U | esigner               
+Daniel Lee | 231203284 | niel.lee@mmu.edu.my      | 2 | 0 | unting | Bo | eeping, Tax Preparation, Excel                | Tax  | istant                
+Hema Letchumy | 231203285 | ma.letchumy@mmu.edu.my   | 3 | 0 | ness   | Pr | ct Management, Python, Agile                  | Proj |  Coordinator          
+Amirul Hakim | 231203286 | irul.hakim@mmu.edu.my    | 2 | 0 |        | Li | , Troubleshooting, Python                     | IT S | ort Technician        
+Lim Kai Jie | 231203287 | m.kj@mmu.edu.my          | 3 | 0 | unting | Pa | ll Management, QuickBooks, Financial Analysis | Payr |  Assistant         
+Rani Devi | 231203288 | ni.devi@mmu.edu.my       | 3 | 0 | ness   | Ex | , Business Analysis, Communication            | Busi | s Development Intern  
+John Goh | 231203289 | hn.goh@mmu.edu.my        | 2 | 0 |        | Ru | on Rails, Web Development, GitHub             | Web  | eloper                
+Siti Noraini | 231203290 | ti.noraini@mmu.edu.my    | 3 | 0 | ness   | Co | nt Writing, Canva, Social Media Marketing     | Soci | Media Coordinator     
+Thinesh Kumar | 231203291 | inesh.kumar@mmu.edu.my   | 2 | 0 |        | An | id Development, Java, SQLite                  | Mobi | App Developer         
+Leong Wei Ming | 231203292 | ong.wei.ming@mmu.edu.my  | 3 | 0 | unting | C# | NET, SQL                                      | Acco | ing Software Developer
+Maya Shanti | 231203293 | ya.shanti@mmu.edu.my     | 3 | 0 | ness   | Ma | ting, Social Media, SEO                       | Digi |  Marketing Executive  
