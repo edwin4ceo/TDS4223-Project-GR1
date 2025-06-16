@@ -3,6 +3,7 @@
 #include <sstream>
 #include <iomanip>
 #include <cstring>
+#include <cstdlib>
 using namespace std;
 
 // Student struct definition
@@ -16,6 +17,35 @@ struct Student {
     char appliedJob[100];
     char status[20];
 };
+
+// Remove spaces from string
+string trim(string str) {
+    // Remove leading spaces
+    while (str.length() > 0 && str[0] == ' ') {
+        str = str.substr(1);
+    }
+    // Remove trailing spaces
+    while (str.length() > 0 && str[str.length()-1] == ' ') {
+        str = str.substr(0, str.length()-1);
+    }
+    return str;
+}
+
+// Convert string to long long (Dev C++ compatible)
+long long stringToLongLong(string str) {
+    long long result = 0;
+    for (int i = 0; i < str.length(); i++) {
+        if (str[i] >= '0' && str[i] <= '9') {
+            result = result * 10 + (str[i] - '0');
+        }
+    }
+    return result;
+}
+
+// Convert string to float (Dev C++ compatible)
+float stringToFloat(string str) {
+    return atof(str.c_str());
+}
 
 // Load students from raw data.txt file
 int loadStudentsFromFile(Student students[], const char* filename) {
@@ -42,30 +72,37 @@ int loadStudentsFromFile(Student students[], const char* filename) {
         
         // Parse Name
         getline(ss, token, '|');
+        token = trim(token);
         strcpy(students[count].name, token.c_str());
         
         // Parse Student ID
         getline(ss, token, '|');
-        students[count].studentID = stoll(token);
+        token = trim(token);
+        students[count].studentID = stringToLongLong(token);
         
         // Parse Email
         getline(ss, token, '|');
+        token = trim(token);
         strcpy(students[count].email, token.c_str());
         
         // Parse CGPA
         getline(ss, token, '|');
-        students[count].cgpa = stof(token);
+        token = trim(token);
+        students[count].cgpa = stringToFloat(token);
         
         // Parse Diploma
         getline(ss, token, '|');
+        token = trim(token);
         strcpy(students[count].diploma, token.c_str());
         
         // Parse Skills
         getline(ss, token, '|');
+        token = trim(token);
         strcpy(students[count].skills, token.c_str());
         
         // Parse Applied Job
         getline(ss, token);
+        token = trim(token);
         strcpy(students[count].appliedJob, token.c_str());
         
         // Set default status
