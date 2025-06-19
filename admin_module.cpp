@@ -44,12 +44,13 @@ void deleteStudentRecord();
 void searchByStudentName();
 void saveSummaryToFile();
 void loadSummaryFromFile();
+string verifyAdminLogin(bool initial = false);
 
 // Utility functions
 string trim(const string& str) {
-    size_t start = str.find_first_not_of(" ");
+    size_t start = str.find_first_not_of(" \t\n\r");
     if (start == string::npos) return "";
-    size_t end = str.find_last_not_of(" ");
+    size_t end = str.find_last_not_of(" \t\n\r");
     return str.substr(start, end - start + 1);
 }
 
@@ -124,23 +125,54 @@ int loadStudentsFromFile(const string& filename) {
 
 // Display students
 void displayStudents(const Student* student) {
-    if (student != 0) {
-        cout << student->name << " | ID: " << student->studentId << " | CGPA: " << fixed << setprecision(2) << student->cgpa << endl;
-    } else {
+    const int NAME_WIDTH = 20;
+    const int EMAIL_WIDTH = 30;
+    const int DIPLOMA_WIDTH = 15;
+    const int SKILLS_WIDTH = 25;
+    const int JOB_WIDTH = 20;
+    const int STATUS_WIDTH = 10;
+
+    if (student == 0) {
         cout << "\n--- Student Records ---" << endl;
-        if (studentCount == 0) {
-            cout << "No records loaded." << endl;
-            return;
-        }
+        cout << left << setw(NAME_WIDTH) << "Name"
+             << setw(12) << "ID"
+             << setw(EMAIL_WIDTH) << "Email"
+             << setw(8) << "CGPA"
+             << setw(DIPLOMA_WIDTH) << "Diploma"
+             << setw(SKILLS_WIDTH) << "Skills"
+             << setw(JOB_WIDTH) << "Applied Job"
+             << setw(STATUS_WIDTH) << "Status" << endl;
+        cout << string(NAME_WIDTH + 12 + EMAIL_WIDTH + 8 + DIPLOMA_WIDTH + SKILLS_WIDTH + JOB_WIDTH + STATUS_WIDTH, '-') << endl;
+    }
+
+    if (student != 0) {
+        cout << left << setw(NAME_WIDTH) << student->name
+             << setw(12) << student->studentId
+             << setw(EMAIL_WIDTH) << student->email
+             << setw(8) << fixed << setprecision(2) << student->cgpa
+             << setw(DIPLOMA_WIDTH) << student->diploma
+             << setw(SKILLS_WIDTH) << student->skills
+             << setw(JOB_WIDTH) << student->appliedJob
+             << setw(STATUS_WIDTH) << student->status << endl;
+    } else if (studentCount == 0) {
+        cout << "No records loaded." << endl;
+        return;
+    } else {
         for (int i = 0; i < studentCount; i++) displayStudents(&students[i]);
     }
 }
 
 // Register new admin
 void registerNewAdmin() {
-    string username, password;
+    string username, password, confirmPassword;
     cout << "Enter new admin username: "; cin >> username;
     cout << "Enter new admin password: "; cin >> password;
+    cout << "Confirm new admin password: "; cin >> confirmPassword;
+
+    if (password != confirmPassword) {
+        cout << "Error: Passwords do not match." << endl;
+        return;
+    }
 
     ofstream file("login_admin.txt", ios::app);
     if (file.is_open()) {
@@ -385,7 +417,7 @@ void pauseScreen() {
 }
 
 // Verify admin login
-bool verifyAdminLogin() {
+string verifyAdminLogin(bool initial) {
     string username, password;
     cout << "==== Admin Login ====" << endl;
     cout << "Username: "; cin >> username;
@@ -393,8 +425,7 @@ bool verifyAdminLogin() {
 
     ifstream file("login_admin.txt");
     if (!file.is_open()) {
-        cout << "Error: Could not open login_admin.txt." << endl;
-        return false;
+        return "Error: Could not open login_admin.txt.";
     }
 
     string line;
@@ -403,14 +434,17 @@ bool verifyAdminLogin() {
         if (delim != string::npos) {
             string storedUser = trim(line.substr(0, delim));
             string storedPass = trim(line.substr(delim + 1));
+            cout << "Checking: " << storedUser << "," << storedPass << endl;
             if (username == storedUser && password == storedPass) {
                 file.close();
-                return true;
+                loggedIn = true;
+                return "Login successful.";
             }
         }
     }
     file.close();
-    return false;
+    cout << "No match found for " << username << "." << endl;
+    return "Login failed.";
 }
 
 // Admin menu
@@ -420,7 +454,7 @@ void adminMenu() {
         clearScreen();
         cout << "==== Internship System - Admin Panel ====" << endl;
         cout << "\n1. Register New Admin" << endl;
-        cout << "2. Login" << endl;
+        cout << "2. Login/Re-login" << endl;
         cout << "3. Logout" << endl;
         cout << "--------------------------" << endl;
         cout << "4. Load Student Data" << endl;
@@ -449,7 +483,10 @@ void adminMenu() {
 
         switch (choice) {
             case 1: registerNewAdmin(); pauseScreen(); break;
-            case 2: if (!verifyAdminLogin()) cout << "Login failed." << endl; else cout << "Already logged in." << endl; pauseScreen(); break;
+            case 2: {
+                logout();
+                return; // Exit to re-enter login loop in main
+            }
             case 3: logout(); pauseScreen(); break;
             case 4: {
                 studentCount = loadStudentsFromFile("C:\\Users\\USER\\OneDrive\\Documents\\TDS4223-Project-GR1\\raw data.txt");
@@ -496,13 +533,17 @@ void adminMenu() {
 
 // Main function
 int main() {
-    loggedIn = verifyAdminLogin();
-    if (loggedIn) {
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        pauseScreen();
-        adminMenu();
-    } else {
-        cout << "Access denied." << endl;
+    while (true) {
+        string result = verifyAdminLogin(true);
+        cout << result << endl;
+        if (loggedIn) {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            pauseScreen();
+            adminMenu();
+        } else {
+            cout << "Access denied." << endl;
+            break; // Exit if login fails initially
+        }
     }
     return 0;
 }
