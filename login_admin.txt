@@ -1,2 +1,6 @@
+<<<<<<< HEAD
 admin1,password123
+=======
+admin1,password123
+>>>>>>> 265e263691156da9ea9e807b0d8c33b0a2649a8a
 admin2,securepass
