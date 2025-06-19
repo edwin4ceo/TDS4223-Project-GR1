@@ -26,15 +26,24 @@ struct Student {
 
 // Hash table for student indices
 int hashTable[TABLE_SIZE][MAX_STUDENTS];
-int hashCount[TABLE_SIZE] = {0}; // Initialize to 0
+int hashCount[TABLE_SIZE] = {0};
 Student students[MAX_STUDENTS];
 int studentCount = 0;
 Student* sortedArray[MAX_STUDENTS];
 int arraySize = 0;
+bool loggedIn = false;
 
 // Function prototypes
 void convertToArray();
 int loadStudentsFromFile(const string& filename);
+void displayStudents(const Student* student = 0);
+void registerNewAdmin();
+void logout();
+void editStudentRecord();
+void deleteStudentRecord();
+void searchByStudentName();
+void saveSummaryToFile();
+void loadSummaryFromFile();
 
 // Utility functions
 string trim(const string& str) {
@@ -46,9 +55,9 @@ string trim(const string& str) {
 
 long long stringToLongLong(const string& str) {
     long long result = 0;
-    for (char c : str) {
-        if (c >= '0' && c <= '9') {
-            result = result * 10 + (c - '0');
+    for (int i = 0; i < str.length(); i++) {
+        if (str[i] >= '0' && str[i] <= '9') {
+            result = result * 10 + (str[i] - '0');
         }
     }
     return result;
@@ -58,11 +67,11 @@ float stringToFloat(const string& str) {
     return atof(str.c_str());
 }
 
-// Load students from file with debug output
+// Load students from file
 int loadStudentsFromFile(const string& filename) {
-    ifstream file(filename);
+    ifstream file(filename.c_str());
     if (!file.is_open()) {
-        cout << "Error: Unable to open file '" << filename << "'. Please check the path and ensure the file exists." << endl;
+        cout << "Error: Unable to open file '" << filename << "'." << endl;
         return 0;
     }
 
@@ -70,46 +79,26 @@ int loadStudentsFromFile(const string& filename) {
     studentCount = 0;
     int lineNumber = 0;
 
-    cout << "Attempting to load students from '" << filename << "'..." << endl;
-
-    // Skip header lines
-    if (!getline(file, line)) {
-        cout << "Error: File is empty." << endl;
-        file.close();
-        return 0;
-    }
+    cout << "Loading from '" << filename << "'..." << endl;
+    if (!getline(file, line)) { file.close(); return 0; }
     lineNumber++;
-    if (!getline(file, line)) {
-        cout << "Error: Missing second header line." << endl;
-        file.close();
-        return 0;
-    }
+    if (!getline(file, line)) { file.close(); return 0; }
     lineNumber++;
 
     while (getline(file, line) && studentCount < MAX_STUDENTS) {
         lineNumber++;
-        if (line.empty()) {
-            cout << "Warning: Skipping empty line " << lineNumber << endl;
-            continue;
-        }
+        if (line.empty()) continue;
 
-        cout << "Processing line " << lineNumber << ": '" << line << "'" << endl;
         stringstream ss(line);
         string fields[7];
         int fieldCount = 0;
-
-        // Parse fields
         while (getline(ss, fields[fieldCount], '|') && fieldCount < 7) {
             fields[fieldCount] = trim(fields[fieldCount]);
             fieldCount++;
         }
 
-        if (fieldCount != 7) {
-            cout << "Error: Line " << lineNumber << " has " << fieldCount << " fields, expected 7. Skipping." << endl;
-            continue;
-        }
+        if (fieldCount != 7) continue;
 
-        // Validate and copy fields
         try {
             strcpy(students[studentCount].name, fields[0].c_str());
             students[studentCount].studentId = stringToLongLong(fields[1]);
@@ -119,86 +108,173 @@ int loadStudentsFromFile(const string& filename) {
             strcpy(students[studentCount].skills, fields[5].c_str());
             strcpy(students[studentCount].appliedJob, fields[6].c_str());
 
-            // Basic validation
-            if (students[studentCount].studentId == 0 || students[studentCount].cgpa < 0.0 || students[studentCount].cgpa > 4.0) {
-                cout << "Error: Invalid data on line " << lineNumber << ". Skipping." << endl;
-                continue;
-            }
+            if (students[studentCount].studentId == 0 || students[studentCount].cgpa < 0.0 || students[studentCount].cgpa > 4.0) continue;
 
             strcpy(students[studentCount].status, "Active");
-
-            // Add to hash table
             int index = students[studentCount].studentId % TABLE_SIZE;
-            if (hashCount[index] < MAX_STUDENTS) {
-                hashTable[index][hashCount[index]++] = studentCount;
-            } else {
-                cout << "Warning: Hash table bucket " << index << " is full." << endl;
-            }
-
+            if (hashCount[index] < MAX_STUDENTS) hashTable[index][hashCount[index]++] = studentCount;
             studentCount++;
-            cout << "Loaded student: " << students[studentCount - 1].name << " (ID: " << students[studentCount - 1].studentId << ")" << endl;
-        } catch (const exception& e) {
-            cout << "Error parsing line " << lineNumber << ": " << e.what() << ". Skipping." << endl;
-            continue;
-        }
+        } catch (...) { continue; }
     }
 
     file.close();
-    cout << "Loading complete. Total students loaded: " << studentCount << endl;
+    cout << "Loaded " << studentCount << " students." << endl;
     return studentCount;
 }
 
-// Display all students
-void displayStudents() {
-    cout << "\n--- Student Records ---" << endl;
+// Display students
+void displayStudents(const Student* student) {
+    if (student != 0) {
+        cout << student->name << " | ID: " << student->studentId << " | CGPA: " << fixed << setprecision(2) << student->cgpa << endl;
+    } else {
+        cout << "\n--- Student Records ---" << endl;
+        if (studentCount == 0) {
+            cout << "No records loaded." << endl;
+            return;
+        }
+        for (int i = 0; i < studentCount; i++) displayStudents(&students[i]);
+    }
+}
+
+// Register new admin
+void registerNewAdmin() {
+    string username, password;
+    cout << "Enter new admin username: "; cin >> username;
+    cout << "Enter new admin password: "; cin >> password;
+
+    ofstream file("login_admin.txt", ios::app);
+    if (file.is_open()) {
+        file << username << "," << password << endl;
+        file.close();
+        cout << "Admin registered successfully." << endl;
+    } else {
+        cout << "Error: Could not open login_admin.txt." << endl;
+    }
+}
+
+// Logout
+void logout() {
+    loggedIn = false;
+    cout << "Logged out successfully." << endl;
+}
+
+// Edit student record
+void editStudentRecord() {
     if (studentCount == 0) {
-        cout << "No student records loaded. Please load data first." << endl;
+        cout << "No records to edit. Load data first." << endl;
         return;
     }
+    long long id;
+    cout << "Enter Student ID to edit: "; cin >> id;
     for (int i = 0; i < studentCount; i++) {
-        cout << i + 1 << ". ";
-        cout << students[i].name << " | ID: " << students[i].studentId << " | Email: " << students[i].email
-             << " | CGPA: " << fixed << setprecision(2) << students[i].cgpa
-             << " | Diploma: " << students[i].diploma << " | Skills: " << students[i].skills
-             << " | Job: " << students[i].appliedJob << " | Status: " << students[i].status << endl;
+        if (students[i].studentId == id) {
+            string input;
+            cin.ignore();
+            cout << "Enter new Name: "; getline(cin, input); strcpy(students[i].name, trim(input).c_str());
+            cout << "Enter new Email: "; getline(cin, input); strcpy(students[i].email, trim(input).c_str());
+            cout << "Enter new CGPA: "; cin >> students[i].cgpa;
+            cout << "Enter new Diploma: "; getline(cin, input); strcpy(students[i].diploma, trim(input).c_str());
+            cout << "Enter new Skills: "; getline(cin, input); strcpy(students[i].skills, trim(input).c_str());
+            cout << "Enter new Applied Job: "; getline(cin, input); strcpy(students[i].appliedJob, trim(input).c_str());
+            cout << "Student updated." << endl;
+            return;
+        }
     }
+    cout << "Student not found." << endl;
 }
 
-// Selection sort by CGPA (highest to lowest)
+// Delete student record
+void deleteStudentRecord() {
+    if (studentCount == 0) {
+        cout << "No records to delete. Load data first." << endl;
+        return;
+    }
+    long long id;
+    cout << "Enter Student ID to delete: "; cin >> id;
+    for (int i = 0; i < studentCount; i++) {
+        if (students[i].studentId == id) {
+            for (int j = i; j < studentCount - 1; j++) students[j] = students[j + 1];
+            studentCount--;
+            cout << "Student deleted." << endl;
+            return;
+        }
+    }
+    cout << "Student not found." << endl;
+}
+
+// Search by student name
+void searchByStudentName() {
+    if (studentCount == 0) {
+        cout << "No records to search. Load data first." << endl;
+        return;
+    }
+    string name;
+    cin.ignore();
+    cout << "Enter Student Name: "; getline(cin, name);
+    bool found = false;
+    for (int i = 0; i < studentCount; i++) {
+        if (strcmp(students[i].name, trim(name).c_str()) == 0) {
+            displayStudents(&students[i]);
+            found = true;
+        }
+    }
+    if (!found) cout << "Student not found." << endl;
+}
+
+// Save summary to file
+void saveSummaryToFile() {
+    ofstream file("summary.txt");
+    if (!file.is_open()) {
+        cout << "Error: Could not open summary.txt." << endl;
+        return;
+    }
+    file << "Total Students: " << studentCount << endl;
+    for (int i = 0; i < studentCount; i++) {
+        file << students[i].name << " | ID: " << students[i].studentId << " | CGPA: " << fixed << setprecision(2) << students[i].cgpa << endl;
+    }
+    file.close();
+    cout << "Summary saved to summary.txt." << endl;
+}
+
+// Load summary from file
+void loadSummaryFromFile() {
+    ifstream file("summary.txt");
+    if (!file.is_open()) {
+        cout << "Error: Could not open summary.txt." << endl;
+        return;
+    }
+    string line;
+    cout << "Loading summary..." << endl;
+    while (getline(file, line)) cout << line << endl;
+    file.close();
+}
+
+// Convert to array
+void convertToArray() {
+    arraySize = 0;
+    for (int i = 0; i < studentCount; i++) sortedArray[arraySize++] = &students[i];
+    cout << "Converted " << arraySize << " students." << endl;
+}
+
+// Selection sort by CGPA
 void selectionSortByCGPA(Student* arr[], int n) {
-    cout << "Sorting by CGPA..." << endl;
     for (int i = 0; i < n - 1; i++) {
         int maxIdx = i;
-        for (int j = i + 1; j < n; j++) {
-            if (arr[j]->cgpa > arr[maxIdx]->cgpa) {
-                maxIdx = j;
-            }
-        }
-        if (maxIdx != i) {
-            swap(arr[i], arr[maxIdx]);
-        }
+        for (int j = i + 1; j < n; j++) if (arr[j]->cgpa > arr[maxIdx]->cgpa) maxIdx = j;
+        if (maxIdx != i) swap(arr[i], arr[maxIdx]);
     }
-    cout << "Sorting by CGPA complete!" << endl;
 }
 
-// Selection sort by Student ID (lowest to highest)
+// Selection sort by ID
 void selectionSortById(Student* arr[], int n) {
-    cout << "Sorting by Student ID..." << endl;
     for (int i = 0; i < n - 1; i++) {
         int minIdx = i;
-        for (int j = i + 1; j < n; j++) {
-            if (arr[j]->studentId < arr[minIdx]->studentId) {
-                minIdx = j;
-            }
-        }
-        if (minIdx != i) {
-            swap(arr[i], arr[minIdx]);
-        }
+        for (int j = i + 1; j < n; j++) if (arr[j]->studentId < arr[minIdx]->studentId) minIdx = j;
+        if (minIdx != i) swap(arr[i], arr[minIdx]);
     }
-    cout << "Sorting by ID complete!" << endl;
 }
 
-// Binary search by Student ID
+// Binary search by ID
 int binarySearchById(Student* arr[], int n, long long targetId) {
     int left = 0, right = n - 1;
     while (left <= right) {
@@ -210,102 +286,60 @@ int binarySearchById(Student* arr[], int n, long long targetId) {
     return -1;
 }
 
-// Search student by ID
+// Search by student ID
 void searchByStudentId() {
-    long long targetId;
-    cout << "\n=== Search Student by ID ===" << endl;
-    cout << "Enter Student ID: ";
-    cin >> targetId;
-
+    if (studentCount == 0) {
+        cout << "No records to search. Load data first." << endl;
+        return;
+    }
+    long long id;
+    cout << "Enter Student ID: "; cin >> id;
     convertToArray();
     selectionSortById(sortedArray, arraySize);
-    int result = binarySearchById(sortedArray, arraySize, targetId);
-
-    if (result != -1) {
-        cout << "\n--- STUDENT FOUND ---" << endl;
-        displayStudents(&sortedArray[result], 1);
-    } else {
-        cout << "Student not found!" << endl;
-    }
+    int result = binarySearchById(sortedArray, arraySize, id);
+    if (result != -1) displayStudents(sortedArray[result]);
+    else cout << "Student not found." << endl;
 }
 
 // Add new student
 void addNewStudent() {
-    try {
-        if (studentCount >= MAX_STUDENTS) {
-            throw runtime_error("Maximum student capacity reached!");
-        }
-
-        Student newStudent;
-        string input;
-
-        cin.ignore();
-        cout << "Enter Name: "; getline(cin, input);
-        strcpy(newStudent.name, trim(input).c_str());
-
-        cout << "Enter Student ID: "; getline(cin, input);
-        newStudent.studentId = stringToLongLong(trim(input));
-
-        cout << "Enter Email: "; getline(cin, input);
-        strcpy(newStudent.email, trim(input).c_str());
-
-        cout << "Enter CGPA: "; cin >> newStudent.cgpa;
-        if (cin.fail() || newStudent.cgpa < 0.0 || newStudent.cgpa > 4.0) throw invalid_argument("Invalid CGPA input.");
-
-        cin.ignore();
-        cout << "Enter Diploma: "; getline(cin, input);
-        strcpy(newStudent.diploma, trim(input).c_str());
-
-        cout << "Enter Skills: "; getline(cin, input);
-        strcpy(newStudent.skills, trim(input).c_str());
-
-        cout << "Enter Applied Job: "; getline(cin, input);
-        strcpy(newStudent.appliedJob, trim(input).c_str());
-
-        strcpy(newStudent.status, "Active");
-
-        students[studentCount] = newStudent;
-        int index = newStudent.studentId % TABLE_SIZE;
-        if (hashCount[index] < MAX_STUDENTS) {
-            hashTable[index][hashCount[index]++] = studentCount;
-        }
-        studentCount++;
-
-        cout << "Student added successfully: " << newStudent.name << endl;
-    } catch (const exception& e) {
-        cerr << "Error: " << e.what() << endl;
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    }
-}
-
-// Convert to array for sorting
-void convertToArray() {
-    arraySize = 0;
-    for (int i = 0; i < studentCount; i++) {
-        sortedArray[arraySize++] = &students[i];
-    }
-    cout << "Converted " << arraySize << " students to array." << endl;
-}
-
-// Display sorted data
-void displaySortedData() {
-    cout << "\n--- Sorted Student Records ---" << endl;
-    if (arraySize == 0) {
-        cout << "No sorted records available. Please convert or load data first." << endl;
+    if (studentCount >= MAX_STUDENTS) {
+        cout << "Maximum capacity reached." << endl;
         return;
     }
-    for (int i = 0; i < arraySize; i++) {
-        cout << i + 1 << ". ";
-        displayStudents(sortedArray[i], 1);
+    Student newStudent;
+    string input;
+    cin.ignore();
+    cout << "Enter Name: "; getline(cin, input); strcpy(newStudent.name, trim(input).c_str());
+    cout << "Enter ID: "; getline(cin, input); newStudent.studentId = stringToLongLong(trim(input));
+    cout << "Enter Email: "; getline(cin, input); strcpy(newStudent.email, trim(input).c_str());
+    cout << "Enter CGPA: "; cin >> newStudent.cgpa;
+    cin.ignore();
+    cout << "Enter Diploma: "; getline(cin, input); strcpy(newStudent.diploma, trim(input).c_str());
+    cout << "Enter Skills: "; getline(cin, input); strcpy(newStudent.skills, trim(input).c_str());
+    cout << "Enter Job: "; getline(cin, input); strcpy(newStudent.appliedJob, trim(input).c_str());
+    strcpy(newStudent.status, "Active");
+    students[studentCount] = newStudent;
+    int index = newStudent.studentId % TABLE_SIZE;
+    if (hashCount[index] < MAX_STUDENTS) hashTable[index][hashCount[index]++] = studentCount;
+    studentCount++;
+    cout << "Student added." << endl;
+}
+
+// Display sorted records
+void displaySortedData() {
+    if (arraySize == 0) {
+        cout << "No sorted records. Convert first." << endl;
+        return;
     }
+    for (int i = 0; i < arraySize; i++) displayStudents(sortedArray[i]);
 }
 
 // Save sorted data
 void saveSortedData() {
     ofstream out("sorted_information.txt");
     if (!out.is_open()) {
-        cout << "Error: Unable to open 'sorted_information.txt' for writing." << endl;
+        cout << "Error: Could not save." << endl;
         return;
     }
     for (int i = 0; i < arraySize; i++) {
@@ -315,27 +349,26 @@ void saveSortedData() {
             << sortedArray[i]->appliedJob << endl;
     }
     out.close();
-    cout << "Saved " << arraySize << " students to 'sorted_information.txt'." << endl;
+    cout << "Saved to sorted_information.txt." << endl;
 }
 
-// Show summary
+// Show summary report
 void showSummary(int count) {
-    cout << "Total records in system: " << count << endl;
+    cout << "Total records: " << count << endl;
 }
 void showSummary(float minCgpa) {
-    cout << "Listing students with CGPA >= " << minCgpa << ":" << endl;
     if (arraySize == 0) {
-        cout << "No records available. Please convert or load data first." << endl;
+        cout << "No records. Convert first." << endl;
         return;
     }
     bool found = false;
     for (int i = 0; i < arraySize; i++) {
         if (sortedArray[i]->cgpa >= minCgpa) {
-            displayStudents(sortedArray[i], 1);
+            displayStudents(sortedArray[i]);
             found = true;
         }
     }
-    if (!found) cout << "No students found with CGPA >= " << minCgpa << "." << endl;
+    if (!found) cout << "No students with CGPA >= " << minCgpa << endl;
 }
 
 // Clear screen
@@ -360,7 +393,7 @@ bool verifyAdminLogin() {
 
     ifstream file("login_admin.txt");
     if (!file.is_open()) {
-        cout << "Error: Unable to open 'login_admin.txt'!" << endl;
+        cout << "Error: Could not open login_admin.txt." << endl;
         return false;
     }
 
@@ -372,41 +405,40 @@ bool verifyAdminLogin() {
             string storedPass = trim(line.substr(delim + 1));
             if (username == storedUser && password == storedPass) {
                 file.close();
-                cout << "Login successful." << endl;
                 return true;
             }
         }
     }
     file.close();
-    cout << "Invalid username or password." << endl;
     return false;
 }
 
 // Admin menu
 void adminMenu() {
-    string filePath;
-    cout << "Enter the full path to 'raw data.txt' (e.g., C:\\path\\to\\raw data.txt): ";
-    cin >> filePath;
-
     int choice;
     do {
         clearScreen();
         cout << "==== Internship System - Admin Panel ====" << endl;
-        cout << "1. Load Student Data" << endl;
-        cout << "2. Display All Records" << endl;
-        cout << "3. Add New Student" << endl;
-        cout << "4. Convert to Array" << endl;
-        cout << "5. Display Sorted Data" << endl;
-        cout << "6. Save Sorted Data" << endl;
-        cout << "7. Show Summary (Total Records)" << endl;
-        cout << "8. Show Summary (CGPA >= X)" << endl;
-        cout << "9. Sort by CGPA" << endl;
-        cout << "10. Sort by Student ID" << endl;
+        cout << "\n1. Register New Admin" << endl;
+        cout << "2. Login" << endl;
+        cout << "3. Logout" << endl;
+        cout << "--------------------------" << endl;
+        cout << "4. Load Student Data" << endl;
+        cout << "5. Add New Student Record" << endl;
+        cout << "6. Edit/Update Student Record" << endl;
+        cout << "7. Delete Student Record" << endl;
+        cout << "8. Display All Records" << endl;
+        cout << "9. Convert Records to Array" << endl;
+        cout << "10. Display Sorted Records" << endl;
         cout << "11. Search by Student ID" << endl;
+        cout << "12. Search by Student Name" << endl;
+        cout << "13. Sort by CGPA" << endl;
+        cout << "14. Sort by Student ID" << endl;
+        cout << "15. Show Summary Report" << endl;
+        cout << "16. Save Summary to File" << endl;
+        cout << "17. Load Summary from File" << endl;
         cout << "0. Exit" << endl;
         cout << "Select an option: ";
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         cin >> choice;
 
         if (cin.fail()) {
@@ -416,92 +448,56 @@ void adminMenu() {
         }
 
         switch (choice) {
-            case 1:
-                // Disable clearScreen to see debug output
-                studentCount = loadStudentsFromFile(filePath);
-                pauseScreen();
-                break;
-            case 2:
-                clearScreen();
-                displayStudents();
-                pauseScreen();
-                break;
-            case 3:
-                clearScreen();
-                addNewStudent();
-                pauseScreen();
-                break;
-            case 4:
-                clearScreen();
-                convertToArray();
-                pauseScreen();
-                break;
-            case 5:
-                clearScreen();
-                displaySortedData();
-                pauseScreen();
-                break;
-            case 6:
-                clearScreen();
-                saveSortedData();
-                pauseScreen();
-                break;
-            case 7:
-                clearScreen();
-                showSummary(studentCount);
-                pauseScreen();
-                break;
-            case 8: {
-                clearScreen();
-                float minCgpa;
-                cout << "Enter minimum CGPA: ";
-                cin >> minCgpa;
-                if (cin.fail()) {
-                    cin.clear();
-                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                    cout << "Invalid CGPA input." << endl;
-                } else {
-                    convertToArray();
-                    showSummary(minCgpa);
-                }
+            case 1: registerNewAdmin(); pauseScreen(); break;
+            case 2: if (!verifyAdminLogin()) cout << "Login failed." << endl; else cout << "Already logged in." << endl; pauseScreen(); break;
+            case 3: logout(); pauseScreen(); break;
+            case 4: {
+                studentCount = loadStudentsFromFile("C:\\Users\\USER\\OneDrive\\Documents\\TDS4223-Project-GR1\\raw data.txt");
                 pauseScreen();
                 break;
             }
-            case 9:
-                clearScreen();
+            case 5: addNewStudent(); pauseScreen(); break;
+            case 6: editStudentRecord(); pauseScreen(); break;
+            case 7: deleteStudentRecord(); pauseScreen(); break;
+            case 8: displayStudents(); pauseScreen(); break;
+            case 9: convertToArray(); pauseScreen(); break;
+            case 10: displaySortedData(); pauseScreen(); break;
+            case 11: searchByStudentId(); pauseScreen(); break;
+            case 12: searchByStudentName(); pauseScreen(); break;
+            case 13: {
                 convertToArray();
                 selectionSortByCGPA(sortedArray, arraySize);
                 displaySortedData();
                 pauseScreen();
                 break;
-            case 10:
-                clearScreen();
+            }
+            case 14: {
                 convertToArray();
                 selectionSortById(sortedArray, arraySize);
                 displaySortedData();
                 pauseScreen();
                 break;
-            case 11:
-                clearScreen();
-                searchByStudentId();
+            }
+            case 15: {
+                float minCgpa;
+                cout << "Enter minimum CGPA: "; cin >> minCgpa;
+                if (cin.fail()) cout << "Invalid input." << endl;
+                else showSummary(minCgpa);
                 pauseScreen();
                 break;
-            case 0:
-                clearScreen();
-                cout << "Exiting admin module..." << endl;
-                break;
-            default:
-                clearScreen();
-                cout << "Invalid option!" << endl;
-                pauseScreen();
+            }
+            case 16: saveSummaryToFile(); pauseScreen(); break;
+            case 17: loadSummaryFromFile(); pauseScreen(); break;
+            case 0: cout << "Exiting..." << endl; break;
+            default: cout << "Invalid option." << endl; pauseScreen();
         }
-    } while (choice != 0);
+    } while (choice != 0 && loggedIn);
 }
 
 // Main function
 int main() {
-    if (verifyAdminLogin()) {
-        cin.clear();
+    loggedIn = verifyAdminLogin();
+    if (loggedIn) {
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         pauseScreen();
         adminMenu();
