@@ -1,0 +1,19 @@
+Total Students: 18
+Aisyah Binti Rahman | ID: 1231203277 | CGPA: 3.70
+Kevin Lim | ID: 1231203278 | CGPA: 2.85
+Nurul Izzati | ID: 1231203279 | CGPA: 3.80
+Arvind Raj | ID: 1231203280 | CGPA: 2.50
+Sarah Wong | ID: 1231203281 | CGPA: 3.40
+Faizal Mohd | ID: 1231203282 | CGPA: 3.05
+Michelle Tan | ID: 1231203283 | CGPA: 3.75
+Daniel Lee | ID: 1231203284 | CGPA: 2.90
+Hema Letchumy | ID: 1231203285 | CGPA: 3.20
+Amirul Hakim | ID: 1231203286 | CGPA: 2.10
+Lim Kai Jie | ID: 1231203287 | CGPA: 3.00
+Rani Devi | ID: 1231203288 | CGPA: 3.50
+John Goh | ID: 1231203289 | CGPA: 2.75
+Siti Noraini | ID: 1231203290 | CGPA: 3.60
+Thinesh Kumar | ID: 1231203291 | CGPA: 2.40
+Leong Wei Ming | ID: 1231203292 | CGPA: 3.35
+Maya Shanti | ID: 1231203293 | CGPA: 3.55
+edwin teo | ID: 1231203190 | CGPA: 3.98

@@ -77,10 +77,10 @@ int loadStudentsFromFile(const string& filename) {
     }
 
     string line;
-    studentCount = 0;
+    studentCount = 0; // Reset student count, overwriting in-memory data
     int lineNumber = 0;
 
-    cout << "Loading from '" << filename << "'..." << endl;
+    cout << "Loading from '" << filename << "'... (This will overwrite any unsaved in-memory data)" << endl;
     if (!getline(file, line)) { file.close(); return 0; }
     lineNumber++;
     if (!getline(file, line)) { file.close(); return 0; }
@@ -128,8 +128,8 @@ void displayStudents(const Student* student) {
     const int NAME_WIDTH = 20;
     const int EMAIL_WIDTH = 30;
     const int DIPLOMA_WIDTH = 15;
-    const int SKILLS_WIDTH = 25;
-    const int JOB_WIDTH = 20;
+    const int SKILLS_WIDTH = 40;
+    const int JOB_WIDTH = 25;
     const int STATUS_WIDTH = 10;
 
     if (student == 0) {
@@ -198,21 +198,67 @@ void editStudentRecord() {
     }
     long long id;
     cout << "Enter Student ID to edit: "; cin >> id;
+    int studentIndex = -1;
     for (int i = 0; i < studentCount; i++) {
         if (students[i].studentId == id) {
-            string input;
-            cin.ignore();
-            cout << "Enter new Name: "; getline(cin, input); strcpy(students[i].name, trim(input).c_str());
-            cout << "Enter new Email: "; getline(cin, input); strcpy(students[i].email, trim(input).c_str());
-            cout << "Enter new CGPA: "; cin >> students[i].cgpa;
-            cout << "Enter new Diploma: "; getline(cin, input); strcpy(students[i].diploma, trim(input).c_str());
-            cout << "Enter new Skills: "; getline(cin, input); strcpy(students[i].skills, trim(input).c_str());
-            cout << "Enter new Applied Job: "; getline(cin, input); strcpy(students[i].appliedJob, trim(input).c_str());
-            cout << "Student updated." << endl;
-            return;
+            studentIndex = i;
+            break;
         }
     }
-    cout << "Student not found." << endl;
+    if (studentIndex == -1) {
+        cout << "Student not found." << endl;
+        return;
+    }
+
+    int choice;
+    do {
+        cout << "\n--- Edit Student Record ---" << endl;
+        cout << "Current Record:" << endl;
+        displayStudents(&students[studentIndex]);
+        cout << "\nSelect field to edit:" << endl;
+        cout << "1. Name" << endl;
+        cout << "2. Email" << endl;
+        cout << "3. CGPA" << endl;
+        cout << "4. Diploma" << endl;
+        cout << "5. Skills" << endl;
+        cout << "6. Applied Job" << endl;
+        cout << "0. Finish Editing" << endl;
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        string input;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer
+        switch (choice) {
+            case 1:
+                cout << "Enter new Name: "; getline(cin, input); strcpy(students[studentIndex].name, trim(input).c_str());
+                break;
+            case 2:
+                cout << "Enter new Email: "; getline(cin, input); strcpy(students[studentIndex].email, trim(input).c_str());
+                break;
+            case 3:
+                cout << "Enter new CGPA: "; cin >> students[studentIndex].cgpa;
+                if (cin.fail() || students[studentIndex].cgpa < 0.0 || students[studentIndex].cgpa > 4.0) {
+                    cout << "Invalid CGPA. Must be between 0.0 and 4.0." << endl;
+                    students[studentIndex].cgpa = 0.0; // Reset on invalid input
+                }
+                cin.ignore();
+                break;
+            case 4:
+                cout << "Enter new Diploma: "; getline(cin, input); strcpy(students[studentIndex].diploma, trim(input).c_str());
+                break;
+            case 5:
+                cout << "Enter new Skills: "; getline(cin, input); strcpy(students[studentIndex].skills, trim(input).c_str());
+                break;
+            case 6:
+                cout << "Enter new Applied Job: "; getline(cin, input); strcpy(students[studentIndex].appliedJob, trim(input).c_str());
+                break;
+            case 0:
+                cout << "Student updated." << endl;
+                break;
+            default:
+                cout << "Invalid option." << endl;
+        }
+    } while (choice != 0);
 }
 
 // Delete student record
@@ -351,11 +397,25 @@ void addNewStudent() {
     cout << "Enter Skills: "; getline(cin, input); strcpy(newStudent.skills, trim(input).c_str());
     cout << "Enter Job: "; getline(cin, input); strcpy(newStudent.appliedJob, trim(input).c_str());
     strcpy(newStudent.status, "Active");
+
+    // Add to in-memory array
     students[studentCount] = newStudent;
     int index = newStudent.studentId % TABLE_SIZE;
     if (hashCount[index] < MAX_STUDENTS) hashTable[index][hashCount[index]++] = studentCount;
     studentCount++;
-    cout << "Student added." << endl;
+
+    // Save to file
+    ofstream file("C:\\Users\\USER\\OneDrive\\Documents\\TDS4223-Project-GR1\\raw data.txt", ios::app);
+    if (file.is_open()) {
+        file << newStudent.name << "|" << newStudent.studentId << "|"
+             << newStudent.email << "|" << fixed << setprecision(2) << newStudent.cgpa << "|"
+             << newStudent.diploma << "|" << newStudent.skills << "|"
+             << newStudent.appliedJob << endl;
+        file.close();
+        cout << "Student added and saved to raw data.txt." << endl;
+    } else {
+        cout << "Error: Could not save to raw data.txt. Data added in memory only." << endl;
+    }
 }
 
 // Display sorted records
@@ -371,7 +431,7 @@ void displaySortedData() {
 void saveSortedData() {
     ofstream out("sorted_information.txt");
     if (!out.is_open()) {
-        cout << "Error: Could not save." << endl;
+        cout << "Error: Could not open sorted_information.txt." << endl;
         return;
     }
     for (int i = 0; i < arraySize; i++) {
