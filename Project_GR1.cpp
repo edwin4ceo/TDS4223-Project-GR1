@@ -3718,8 +3718,8 @@ bool InternshipSystem::validatePassword(string password)
     
     bool hasUpper = false, hasLower = false, hasDigit = false;
     
-    // ❌ for (char c : password) {
-    // ✅ Use traditional for loop
+    // for (char c : password) {
+    // Use traditional for loop
     for (size_t i = 0; i < password.length(); i++) {
         char c = password[i];
         if (isupper(c)) hasUpper = true;
@@ -3773,8 +3773,8 @@ void InternshipSystem::backupSystemData()
             throw FileException("Cannot create staff backup file");
         }
         
-        // ❌ saveStaffToFile(*staffMembers[i], staffFile);
-        // ✅ Use the global friend function instead
+        // saveStaffToFile(*staffMembers[i], staffFile);
+        // Use the global friend function instead
         for (int i = 0; i < staffCount; i++) {
             ::saveStaffToFile(*staffMembers[i], staffFile);
         }
