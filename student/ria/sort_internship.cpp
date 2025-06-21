@@ -33,11 +33,11 @@ void loadJobs(vector<Internship>& jobs) {
 void displayJobs(const vector<Internship>& jobs) {
     cout << "\nJob Listings:\n";
     cout << "-----------------------------------------------------------\n";
-    for (const Internship& job : jobs) {
-        cout << "ID       : " << job.jobID << endl;
-        cout << "Title    : " << job.jobTitle << endl;
-        cout << "Company  : " << job.company << endl;
-        cout << "Deadline : " << job.deadline << endl;
+    for (int i = 0; i < jobs.size(); i++) {
+        cout << "ID       : " << jobs[i].jobID << endl;
+        cout << "Title    : " << jobs[i].jobTitle << endl;
+        cout << "Company  : " << jobs[i].company << endl;
+        cout << "Deadline : " << jobs[i].deadline << endl;
         cout << "-----------------------------------------------------------\n";
     }
 }
