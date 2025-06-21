@@ -4,8 +4,8 @@
 CPP      = g++.exe
 CC       = gcc.exe
 WINDRES  = windres.exe
-OBJ      = apply_internship.o main_student_menu.o search_internships.o view_my_applications.o
-LINKOBJ  = apply_internship.o main_student_menu.o search_internships.o view_my_applications.o
+OBJ      = apply_internship.o main_student_menu.o search_internships.o view_my_applications.o error_handling.o
+LINKOBJ  = apply_internship.o main_student_menu.o search_internships.o view_my_applications.o error_handling.o
 LIBS     = -L"C:/Users/mabar/Desktop/Dev-Cpp/MinGW64/lib" -L"C:/Users/mabar/Desktop/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib" -static-libgcc
 INCS     = -I"C:/Users/mabar/Desktop/Dev-Cpp/MinGW64/include" -I"C:/Users/mabar/Desktop/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Users/mabar/Desktop/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include"
 CXXINCS  = -I"C:/Users/mabar/Desktop/Dev-Cpp/MinGW64/include" -I"C:/Users/mabar/Desktop/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Users/mabar/Desktop/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include" -I"C:/Users/mabar/Desktop/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include/c++"
@@ -35,3 +35,6 @@ search_internships.o: search_internships.cpp
 
 view_my_applications.o: view_my_applications.cpp
 	$(CPP) -c view_my_applications.cpp -o view_my_applications.o $(CXXFLAGS)
+
+error_handling.o: error_handling.cpp
+	$(CPP) -c error_handling.cpp -o error_handling.o $(CXXFLAGS)

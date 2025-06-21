@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <cstdlib> // for system()
+#include "error_handling.hpp" // ? Include your helper file
 using namespace std;
 
 // Function declarations
@@ -24,15 +25,16 @@ int main() {
         cout << "2. View My Applications\n";
         cout << "3. Search Internships\n";
         cout << "4. Exit\n";
-        cout << "Enter your choice: ";
-        cin >> choice;
+
+        // ? Use the validated input function
+        choice = getValidatedChoice(1, 4);
 
         switch (choice) {
             case 1: applyInternship(studentID); break;
             case 2: viewApplications(studentID); break;
             case 3: searchInternships(); break;
             case 4: cout << "Goodbye!\n"; break;
-            default: cout << "Invalid choice. Try again.\n";
+            default: cout << "Invalid choice. Try again.\n"; break;
         }
 
         if (choice != 4) {
@@ -45,3 +47,4 @@ int main() {
 
     return 0;
 }
+

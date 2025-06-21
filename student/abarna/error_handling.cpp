@@ -1,25 +1,15 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <stdexcept>
-using namespace std;
+#include "error_handling.hpp"
 
-// Check if a file exists
 bool fileExists(const string& filename) {
     ifstream file(filename.c_str());
     return file.good();
 }
 
-// Open file safely with exception
-ifstream openFileSafely(const string& filename) {
-    ifstream file(filename.c_str());
-    if (!file) {
-        throw runtime_error("? Error: Cannot open file: " + filename);
-    }
-    return file;
+bool openFileSafely(const string& filename, ifstream& fileRef) {
+    fileRef.open(filename.c_str());
+    return fileRef.good();
 }
 
-// Validate integer input (for menu choices)
 int getValidatedChoice(int min, int max) {
     int choice;
     while (true) {
@@ -32,8 +22,8 @@ int getValidatedChoice(int min, int max) {
             }
         } else {
             cout << "??  Invalid input. Please enter a number.\n";
-            cin.clear();            // reset error flag
-            cin.ignore(1000, '\n'); // discard invalid input
+            cin.clear();
+            cin.ignore(1000, '\n');
         }
     }
 }
