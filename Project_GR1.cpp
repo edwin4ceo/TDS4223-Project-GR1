@@ -29,7 +29,7 @@ class Admin;
 class Staff;
 class InternshipJob;
 class Application;
-
+class InternshipSystem; // Add this forward declaration
 
 // Exception classes for error handling
 class FileException : public exception 
@@ -288,8 +288,7 @@ public:
 
 
 // New Staff class
-
-class Staff : public Person 
+class Staff : public Person
 {
 private:
     string department;
@@ -297,34 +296,26 @@ private:
     string password;
     static int totalStaff;
 
-
 public:
     Staff() : Person(), department(""), position(""), password("") { totalStaff++; }
     Staff(string id, string name, string email, string dept, string pos, string pwd)
         : Person(id, name, email), department(dept), position(pos), password(pwd) { totalStaff++; }
-
-    
     ~Staff() { totalStaff--; }
 
-    
     void displayInfo();
     bool login();
 
-
-    void processApplications();
-    void generateDepartmentReport();
-
+    void processApplications(InternshipSystem* system); // Updated declaration
+    void generateDepartmentReport(InternshipSystem* system); // Updated declaration
+    void viewDepartmentInternships(InternshipSystem* system); // New declaration
 
     string getDepartment() const { return department; }
     string getPosition() const { return position; }
 
-
     void setDepartment(string dept) { department = dept; }
     void setPosition(string pos) { position = pos; }
 
-
     static int getTotalStaff() { return totalStaff; }
-
 
     friend void saveStaffToFile(Staff& staff, ostream& file);
 };
@@ -406,44 +397,33 @@ public:
 
 
 // Main System class
-class InternshipSystem 
+class InternshipSystem
 {
 private:
-    // vector<Student*> students;     //  Remove
-    // vector<Admin*> admins;         //  Remove
-    // vector<Staff*> staffMembers;   //  Remove
-    // vector<InternshipJob*> jobs;   //  Remove
-    
+    InternshipJob* jobs[50];
+    int jobCount;
+    Staff* currentStaff;
+
     // Replace with raw arrays
     Student* students[MAX_STUDENTS];
     Admin* admins[MAX_STUDENTS];
     Staff* staffMembers[MAX_STAFF];
-    InternshipJob* jobs[MAX_JOBS];
-    
+
     int studentCount;
     int adminCount;
     int staffCount;
-    int jobCount;
 
     ApplicationList* applications;
     StudentHashTable* studentHash;
 
-    void initializeSampleData();
-
-
-    // Utility functions
-    string trim(const string& str);
-    long long stringToLongLong(const string& str);
-    float stringToFloat(const string& str);
-    string encryptPassword(const string& password);
-    string decryptPassword(const string& encrypted);
-    void logEvent(const string& eventType, const string& details);
-
-
 public:
-    InternshipSystem();
-    ~InternshipSystem();
-
+    InternshipSystem(); // Single constructor declaration
+    ~InternshipSystem(); // Single destructor declaration
+    void mainMenu();
+    void staffMenu(Staff* staff);
+    int getJobCount() const { return jobCount; } // Getter
+    InternshipJob* getJob(int index) const { return jobs[index]; } // Adjusted getter for array access
+    // ... other methods ...
 
     // File operations
     void loadStudentsFromFile();
@@ -457,29 +437,23 @@ public:
     void loadAdminsFromFile();
     void saveAdminsToFile();
 
-
     // System operations
-    void mainMenu();
     void studentMenu();
     void adminMenu();
-    void staffMenu();
 
-
-    // Sorting algorithms (manually implemented)
+    // Sorting algorithms
     void selectionSortStudentsByCGPA();
     void selectionSortStudentsByID();
     void bubbleSortJobsByDeadline();
     void mergeSortJobsByCompany(int low, int high);
     void mergeJobsByCompany(int low, int mid, int high);
 
-
-    // Searching algorithms (manually implemented)
+    // Searching algorithms
     int binarySearchStudentByID(string targetID);
     Student* hashSearchStudent(string studentID);
     int linearSearchJobByTitle(string title);
     int fibonacciSearchStudentByID(string targetID);
     int interpolationSearchStudentByCGPA(float targetCGPA);
-
 
     // System management
     void registerStudent();
@@ -491,70 +465,48 @@ public:
     void displayAllStaff();
     void displayStatistics();
 
-
     // Validation functions
-
     bool validateStudentID(string studentID);
-
     bool validateEmail(string email);
-
     bool validateCGPA(float cgpa);
-
     bool validatePassword(string password);
 
-    
-
     // Backup and restore functions
-
     void backupSystemData();
-
     void restoreSystemData(string backupTimestamp);
-
     string getCurrentTimestamp();
 
-    
-
     // Reporting functions
-
     void generateDetailedReport();
-
     void generateStudentPerformanceReport();
 
-    
-
     // Search and filter functions
-
     void searchStudentsByDiploma(string diploma);
-
     void searchStudentsByCGPARange(float minCGPA, float maxCGPA);
-
     void searchJobsByCompany(string company);
 
-    
-
     // System optimization and maintenance
-
     void optimizeHashTable();
-
     void defragmentData();
-
     int calculateSystemHealth();
-
     void runSystemDiagnostics();
 
-    
-
-    // Add these to InternshipSystem class declaration (public section)
-public:
+    // Additional sorting functions
     void insertionSortStudentsByName();
     void bubbleSortJobsByTitle();
 
-
-
     friend void saveSystemData(InternshipSystem& system);
-
     friend void loadSystemData(InternshipSystem& system);
 
+    void initializeSampleData(); // Moved to public
+
+    // Utility functions
+    string trim(const string& str);
+    long long stringToLongLong(const string& str);
+    float stringToFloat(const string& str);
+    string encryptPassword(const string& password);
+    string decryptPassword(const string& encrypted);
+    void logEvent(const string& eventType, const string& details);
 };
 
 // Static member initialization
@@ -1528,155 +1480,89 @@ void Admin::manageStudents()
 
 
 void Admin::manageInternships() 
-
 {
-
     int choice;
-
     cout << "\n=== Internship Management ===" << endl;
-
     cout << "1. View All Jobs" << endl;
-
     cout << "2. Add New Job" << endl;
-
     cout << "3. Edit Job" << endl;
-
     cout << "4. Delete Job" << endl;
-
     cout << "Enter choice: ";
-
     cin >> choice;
-
     
 
     // Implementation would go here
-
     cout << "Feature under development..." << endl;
-
 }
-
 
 
 void Admin::manageStaff() 
-
 {
-
     int choice;
-
     cout << "\n=== Staff Management ===" << endl;
-
     cout << "1. View All Staff" << endl;
-
     cout << "2. Add New Staff" << endl;
-
     cout << "3. Edit Staff" << endl;
-
     cout << "4. Delete Staff" << endl;
-
     cout << "Enter choice: ";
-
     cin >> choice;
 
-    
-
     cout << "Staff management feature under development..." << endl;
-
 }
-
 
 
 void Admin::viewAllApplications() 
-
 {
-
     try {
-
         ifstream file("applications.txt");
-
-        if (!file.is_open()) {
-
+        if (!file.is_open()) 
+		{
             throw FileException("Cannot open applications.txt");
-
         }
 
-        
 
         cout << "\n=== All Applications ===" << endl;
-
         cout << left << setw(12) << "Student ID" 
-
              << setw(8) << "Job ID" 
-
              << setw(25) << "Job Title" 
-
              << setw(20) << "Company" 
-
              << setw(12) << "Status" << endl;
-
         cout << string(77, '-') << endl;
-
         
 
         string line;
-
         while (getline(file, line)) 
-
         {
-
             stringstream ss(line);
-
             string studentID, jobID, jobTitle, company, status;
 
-            
-
             getline(ss, studentID, '|');
-
             getline(ss, jobID, '|');
-
             getline(ss, jobTitle, '|');
-
             getline(ss, company, '|');
-
             getline(ss, status, '|');
-
             
 
             cout << left << setw(12) << studentID
-
                  << setw(8) << jobID
-
                  << setw(25) << jobTitle
-
                  << setw(20) << company
-
                  << setw(12) << status << endl;
-
         }
-
         file.close();
-
     } catch (const FileException& e) 
 
     {
-
         cout << "Error: " << e.what() << endl;
-
     }
-
 }
 
 
-
 void Admin::generateReports() 
-
 {
-
     cout << "\n=== System Reports ===" << endl;
-
     cout << "Total Students: " << Student::getTotalStudents() << endl;
-
     cout << "Total Admins: " << Admin::getTotalAdmins() << endl;
-
     cout << "Total Staff: " << Staff::getTotalStaff() << endl;
 
     // Additional reporting logic would go here
@@ -1686,295 +1572,295 @@ void Admin::generateReports()
 
 
 // Implementation of Staff methods
-
 void Staff::displayInfo() 
-
 {
-
     cout << "\n=== Staff Information ===" << endl;
-
     cout << "ID: " << id << endl;
-
     cout << "Name: " << name << endl;
-
     cout << "Email: " << email << endl;
-
     cout << "Department: " << department << endl;
-
     cout << "Position: " << position << endl;
-
 }
 
 
-
 bool Staff::login() 
-
 {
-
     try {
-
         string inputID, inputPassword;
-
         cout << "Enter Staff ID: ";
-
         cin >> inputID;
-
         cout << "Enter Password: ";
-
         cin >> inputPassword;
 
-        
-
         ifstream file("staff.txt");
-
         if (!file.is_open()) 
-
         {
-
             throw FileException("Cannot open staff.txt");
-
         }
 
-        
-
         string line;
-
         while (getline(file, line)) 
-
         {
 
             stringstream ss(line);
-
             string storedID, storedName, storedEmail, storedDept, storedPos, storedPwd;
-
             
 
             getline(ss, storedID, '|');
-
             getline(ss, storedName, '|');
-
             getline(ss, storedEmail, '|');
-
             getline(ss, storedDept, '|');
-
             getline(ss, storedPos, '|');
-
             getline(ss, storedPwd, '|');
 
             
-
             if (inputID == storedID && inputPassword == storedPwd) 
-
             {
-
                 file.close();
-
                 id = inputID;
-
                 name = storedName;
-
                 email = storedEmail;
-
                 department = storedDept;
-
                 position = storedPos;
-
                 return true;
-
             }
 
         }
 
         file.close();
-
         throw LoginException("Invalid staff credentials");
-
-    } catch (const exception& e) {
-
+    } catch (const exception& e) 
+	{
         cout << "Login Error: " << e.what() << endl;
-
         return false;
-
     }
 
 }
 
 
-
-void Staff::processApplications() 
-
+void Staff::processApplications(InternshipSystem* system)
 {
+    try {
+        ifstream file("applications.txt");
+        if (!file.is_open()) {
+            throw FileException("Cannot open applications.txt");
+        }
 
-    cout << "\nProcessing internship applications..." << endl;
+        cout << "\n=== Applications to Process ===\n";
+        cout << left << setw(12) << "Student ID"
+             << setw(8) << "Job ID"
+             << setw(25) << "Job Title"
+             << setw(20) << "Company"
+             << setw(12) << "Status" << endl;
+        cout << string(77, '-') << endl;
 
-    // Implementation would go here
+        vector<string> linesToUpdate;
+        string line;
+        while (getline(file, line)) {
+            stringstream ss(line);
+            string studentID, jobID, jobTitle, company, status;
+            getline(ss, studentID, '|');
+            getline(ss, jobID, '|');
+            getline(ss, jobTitle, '|');
+            getline(ss, company, '|');
+            getline(ss, status, '|');
 
-    cout << "Application processing feature under development..." << endl;
+            if (company.find(department) != string::npos && status == "Pending") {
+                cout << left << setw(12) << studentID
+                     << setw(8) << jobID
+                     << setw(25) << jobTitle
+                     << setw(20) << company
+                     << setw(12) << status << endl;
 
+                int choice;
+                cout << "Set status for " << jobID << " (1: Approved, 2: Rejected, 3: Skip): ";
+                cin >> choice;
+                if (choice == 1) status = "Approved";
+                else if (choice == 2) status = "Rejected";
+                if (choice == 1 || choice == 2) {
+                    linesToUpdate.push_back(studentID + "|" + jobID + "|" + jobTitle + "|" + company + "|" + status);
+                }
+            }
+        }
+        file.close();
+
+        if (!linesToUpdate.empty()) {
+            ofstream outFile("applications.txt");
+            if (!outFile.is_open()) {
+                throw FileException("Cannot open applications.txt for writing");
+            }
+            ifstream tempFile("applications.txt");
+            while (getline(tempFile, line)) {
+                stringstream ss(line);
+                string studentID, jobID;
+                getline(ss, studentID, '|');
+                getline(ss, jobID, '|');
+                bool updated = false;
+                for (size_t i = 0; i < linesToUpdate.size(); ++i) { // Traditional for loop
+                    if (linesToUpdate[i].find(studentID + "|" + jobID) == 0) {
+                        outFile << linesToUpdate[i] << endl;
+                        updated = true;
+                        break;
+                    }
+                }
+                if (!updated) outFile << line << endl;
+            }
+            tempFile.close();
+            outFile.close();
+            cout << "Application statuses updated!\n";
+        } else {
+            cout << "No pending applications to process.\n";
+        }
+    } catch (const FileException& e) {
+        cout << "Error: " << e.what() << endl;
+    }
 }
 
-
-
-void Staff::generateDepartmentReport() 
-
+void Staff::generateDepartmentReport(InternshipSystem* system)
 {
+    try {
+        ofstream report(("department_report_" + department + "_" + system->getCurrentTimestamp() + ".txt").c_str());
+        if (!report.is_open()) {
+            throw FileException("Cannot create department report file");
+        }
 
-    cout << "\nGenerating department report for " << department << "..." << endl;
+        report << "=== " << department << " Department Report ===\n";
+        report << "Generated on: " << system->getCurrentTimestamp() << "\n";
+        report << "Total Staff: " << Staff::getTotalStaff() << "\n";
 
-    // Implementation would go here
-
-    cout << "Department reporting feature under development..." << endl;
-
+        int deptApps = 0;
+        ifstream appFile("applications.txt");
+        if (appFile.is_open()) {
+            string line;
+            while (getline(appFile, line)) {
+                stringstream ss(line);
+                string company;
+                getline(ss, company, '|'); // Adjusted to skip fields correctly
+                getline(ss, company, '|'); // Move to company field
+                getline(ss, company, '|'); // Get company
+                if (company.find(department) != string::npos) deptApps++;
+            }
+            appFile.close();
+        }
+        report << "Total Applications: " << deptApps << "\n";
+        report.close();
+        cout << "Department report generated: department_report_" << department << "_" << system->getCurrentTimestamp() << ".txt\n";
+    } catch (const FileException& e) {
+        cout << "Error: " << e.what() << endl;
+    }
 }
 
+void Staff::viewDepartmentInternships(InternshipSystem* system)
+{
+    cout << "\n=== Internships for " << department << " Department ===\n";
+    cout << left << setw(8) << "Job ID"
+         << setw(30) << "Title"
+         << setw(20) << "Company"
+         << setw(12) << "Deadline" << endl;
+    cout << string(70, '-') << endl;
 
+    int count = 0;
+    for (int i = 0; i < system->getJobCount(); i++) {
+        InternshipJob* job = system->getJob(i);
+        if (job && job->getCompany().find(department) != string::npos) {
+            cout << left << setw(8) << job->getJobID()
+                 << setw(30) << job->getTitle()
+                 << setw(20) << job->getCompany()
+                 << setw(12) << job->getDeadline() << endl;
+            count++;
+        }
+    }
+    if (count == 0) {
+        cout << "No internships found for " << department << " department.\n";
+    } else {
+        cout << "\nTotal internships found: " << count << endl;
+    }
+}
 
 // Implementation of InternshipJob methods
-
-void InternshipJob::display() 
-
+void InternshipJob::display()
 {
-
     cout << "Job ID: " << jobID << " | Title: " << title 
-
          << " | Company: " << company << " | Deadline: " << deadline << endl;
 
 }
 
 
-
 void InternshipJob::display(bool showDetails) 
-
 {
-
     display();
-
     if (showDetails) 
-
     {
-
         cout << "Requirements: " << requirements << endl;
-
         cout << "Status: " << (isActive ? "Active" : "Inactive") << endl;
-
     }
-
 }
 
 
 
 void InternshipJob::display(string format) 
-
 {
-
     if (format == "CSV") 
-
     {
-
         cout << jobID << "," << title << "," << company << "," << deadline << endl;
-
     } else {
-
         display();
-
     }
-
 }
 
 
 
 void InternshipJob::display(bool showDetails, string format) 
-
 {
-
     if (format == "CSV") 
-
     {
-
         display(format);
-
         if (showDetails) 
-
         {
-
             cout << "," << requirements << "," << (isActive ? "Active" : "Inactive") << endl;
-
         }
-
     } else {
-
         display(showDetails);
-
     }
-
 }
 
 
 
 // Implementation of StudentHashTable methods
-
 StudentHashTable::StudentHashTable(int size) : size(size), count(0) 
-
 {
-
     table = new Student*[size];
-
     for (int i = 0; i < size; i++) 
-
     {
-
         table[i] = NULL;
-
     }
-
 }
-
 
 
 StudentHashTable::~StudentHashTable() 
-
 {
-
     for (int i = 0; i < size; i++) {
-
         if (table[i] != NULL) {
-
             delete table[i];
-
         }
-
     }
-
     delete[] table;
-
 }
-
 
 
 int StudentHashTable::hash(string key) 
-
 {
-
     int hash = 0;
-
     for (size_t i = 0; i < key.length(); i++) 
-
     {
-
         hash = (hash * 31 + key[i]) % size;
-
     }
-
     return hash % size;
-
 }
 
 
-
 void StudentHashTable::insert(Student* student) 
-
 {
-
     int index = hash(student->getID());
 
     // Simple linear probing for collision resolution
@@ -2002,73 +1888,43 @@ void StudentHashTable::insert(Student* student)
 
 
 Student* StudentHashTable::search(string studentID) 
-
 {
-
     int index = hash(studentID);
-
     int originalIndex = index;
 
-    
-
     while (table[index] != NULL) 
-
     {
-
         if (table[index]->getID() == studentID) 
-
         {
-
             return table[index];
-
         }
-
         index = (index + 1) % size;
-
         if (index == originalIndex) break; // Avoid infinite loop
 
     }
-
     return NULL;
 
 }
 
 
-
 void StudentHashTable::remove(string studentID) 
-
 {
-
     int index = hash(studentID);
-
     int originalIndex = index;
-
     
-
     while (table[index] != NULL) 
-
     {
-
         if (table[index]->getID() == studentID) 
-
         {
-
             delete table[index];
-
             table[index] = NULL;
-
             count--;
-
             return;
-
         }
-
         index = (index + 1) % size;
 
         if (index == originalIndex) break;
-
     }
-
 }
 
 
@@ -2493,11 +2349,8 @@ void InternshipSystem::loadStudentsFromFile()
 
 
 void InternshipSystem::saveStudentsToFile() 
-
 {
-
     try {
-
         ofstream file("students.txt");
 
         if (!file.is_open()) {
@@ -2525,9 +2378,7 @@ void InternshipSystem::saveStudentsToFile()
 
 
 void InternshipSystem::loadStaffFromFile() 
-
 {
-
     try {
 
         ifstream file("staff.txt");
@@ -2856,94 +2707,56 @@ void InternshipSystem::saveApplicationsToFile()
 // System operations
 
 void InternshipSystem::mainMenu() 
-
 {
-
     int choice;
-
     do {
-
         cout << "\n=== Internship System Menu ===\n";
-
         cout << "1. Login as Student\n";
-
         cout << "2. Login as Admin\n";
-
         cout << "3. Login as Staff\n";
-
         cout << "4. Exit\n";
-
         cout << "Enter choice: ";
-
         cin >> choice;
-
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
 
-
         switch (choice) 
-
         {
-
             case 1: 
-
             {
-
                 Student* student = new Student();
-
                 if (student->login()) 
-
                 {
-
                     studentMenu();
-
                 }
-
                 delete student;
 
                 break;
-
             }
 
             case 2: 
-
             {
-
                 Admin* admin = new Admin();
-
                 if (admin->login()) 
-
                 {
-
                     adminMenu();
-
                 }
-
                 delete admin;
 
                 break;
-
             }
 
-            case 3:
-
-            {
-
-                Staff* staff = new Staff();
-
-                if (staff->login()) 
-
-                {
-
-                    staffMenu();
-
-                }
-
-                delete staff;
-
-                break;
-
-            }
+            case 3: 
+			{
+			Staff* staff = new Staff();
+			if (staff->login()) {
+			currentStaff = staff;
+			staffMenu(currentStaff);
+			} else {
+			 delete staff;
+			 }
+			 break;
+			 }
 
             case 4:
 
@@ -3084,10 +2897,8 @@ void InternshipSystem::adminMenu()
     } while (true);
 }
 
-void InternshipSystem::staffMenu() 
-
+void InternshipSystem::staffMenu(Staff* staff)
 {
-
     int choice;
     do {
         cout << "\n=== Staff Menu ===\n";
@@ -3100,23 +2911,21 @@ void InternshipSystem::staffMenu()
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
         switch (choice) {
-            case 1: 
-            {
-                Staff tempStaff;
-                tempStaff.processApplications();
+            case 1:
+                staff->processApplications(this); // Pass system reference
                 break;
-            }
-            case 2: 
-            {
-                Staff tempStaff;
-                tempStaff.generateDepartmentReport();
+            case 2:
+                staff->generateDepartmentReport(this);
                 break;
-            }
-            case 3: 
-                cout << "\nDepartment internship view under development...\n";
+            case 3:
+                staff->viewDepartmentInternships(this);
                 break;
-            case 4: cout << "Logging out...\n"; return;
-            default: cout << "Invalid choice. Please try again.\n";
+            case 4:
+                cout << "Logging out...\n";
+                currentStaff = NULL; // Clear current staff
+                return;
+            default:
+                cout << "Invalid choice. Please try again.\n";
         }
     } while (true);
 }
