@@ -1,20 +1,20 @@
-Name                 | Student ID  | Email                      | CGPA | Diploma    | Skills                                             |                 
----------------------|-------------|----------------------------|------|------------|----------------------------------------------------|
-Aisyah Binti Rahman  | 1231203277  | aisyah.rahman@mmu.edu.my   | 3.70 | IT         | Java, HTML, Communication                          |          
-Kevin Lim            | 1231203278  | kevin.lim@mmu.edu.my       | 2.85 | Business   | Marketing, Sales, Data Analysis                    |       
-Nurul Izzati         | 1231203279  | nurul.izzati@mmu.edu.my    | 3.80 | IT         | Graphic Design, Adobe Illustrator, HTML            |             
-Arvind Raj           | 1231203280  | arvind.raj@mmu.edu.my      | 2.50 | Accounting | Financial Reporting, Excel, Auditing               |            
-Sarah Wong           | 1231203281  | sarah.wong@mmu.edu.my      | 3.40 | Business   | Public Speaking, SEO, Business Management          |   
-Faizal Mohd          | 1231203282  | faizal.mohd@mmu.edu.my     | 3.05 | IT         | C++, MySQL, Network Security                       |        
-Michelle Tan         | 1231203283  | michelle.tan@mmu.edu.my    | 3.75 | IT         | UI/UX Design, Figma, HTML                          |                
-Daniel Lee           | 1231203284  | daniel.lee@mmu.edu.my      | 2.90 | Accounting | Bookkeeping, Tax Preparation, Excel                |                
-Hema Letchumy        | 1231203285  | hema.letchumy@mmu.edu.my   | 3.20 | Business   | Project Management, Python, Agile                  |      
-Amirul Hakim         | 1231203286  | amirul.hakim@mmu.edu.my    | 2.10 | IT         | Linux, Troubleshooting, Python                     |       
-Lim Kai Jie          | 1231203287  | lim.kj@mmu.edu.my          | 3.00 | Accounting | Payroll Management, QuickBooks, Financial Analysis |   
-Rani Devi            | 1231203288  | rani.devi@mmu.edu.my       | 3.50 | Business   | Excel, Business Analysis, Communication            | 
-John Goh             | 1231203289  | john.goh@mmu.edu.my        | 2.75 | IT         | Ruby on Rails, Web Development, GitHub             |              
-Siti Noraini         | 1231203290  | siti.noraini@mmu.edu.my    | 3.60 | Business   | Content Writing, Canva, Social Media Marketing     |
-Thinesh Kumar        | 1231203291  | thinesh.kumar@mmu.edu.my   | 2.40 | IT         | Android Development, Java, SQLite                  |         
-Leong Wei Ming       | 1231203292  | leong.wei.ming@mmu.edu.my  | 3.35 | Accounting | C#, .NET, SQL                                      | 
-Maya Shanti          | 1231203293  | maya.shanti@mmu.edu.my     | 3.55 | Business   | Marketing, Social Media, SEO                       | 
-edwin ceo|1231203190|mone@gmail.com|3.98|IT|Java|1231201130|Riashini a/p Manoj Kumar|riawee25@gmail.com|3.7|Diploma in IT|Java, HTML, PHP, C++, Python|
+Name                 | Student ID  | Email                      |0.00| Diploma    | Skills                                             |
+---------------------|-------------|----------------------------|0.00|------------|----------------------------------------------------|
+Aisyah Binti Rahman  | 1231203277  | aisyah.rahman@mmu.edu.my   |0.00| IT         | Java, HTML, Communication                          |
+Kevin Lim            | 1231203278  | kevin.lim@mmu.edu.my       |0.00| Business   | Marketing, Sales, Data Analysis                    |
+Nurul Izzati         | 1231203279  | nurul.izzati@mmu.edu.my    |0.00| IT         | Graphic Design, Adobe Illustrator, HTML            |
+Arvind Raj           | 1231203280  | arvind.raj@mmu.edu.my      |0.00| Accounting | Financial Reporting, Excel, Auditing               |
+Sarah Wong           | 1231203281  | sarah.wong@mmu.edu.my      |0.00| Business   | Public Speaking, SEO, Business Management          |
+Faizal Mohd          | 1231203282  | faizal.mohd@mmu.edu.my     |0.00| IT         | C++, MySQL, Network Security                       |
+Michelle Tan         | 1231203283  | michelle.tan@mmu.edu.my    |0.00| IT         | UI/UX Design, Figma, HTML                          |
+Daniel Lee           | 1231203284  | daniel.lee@mmu.edu.my      |0.00| Accounting | Bookkeeping, Tax Preparation, Excel                |
+Hema Letchumy        | 1231203285  | hema.letchumy@mmu.edu.my   |0.00| Business   | Project Management, Python, Agile                  |
+Amirul Hakim         | 1231203286  | amirul.hakim@mmu.edu.my    |0.00| IT         | Linux, Troubleshooting, Python                     |
+Lim Kai Jie          | 1231203287  | lim.kj@mmu.edu.my          |0.00| Accounting | Payroll Management, QuickBooks, Financial Analysis |
+Rani Devi            | 1231203288  | rani.devi@mmu.edu.my       |0.00| Business   | Excel, Business Analysis, Communication            |
+John Goh             | 1231203289  | john.goh@mmu.edu.my        |0.00| IT         | Ruby on Rails, Web Development, GitHub             |
+Siti Noraini         | 1231203290  | siti.noraini@mmu.edu.my    |0.00| Business   | Content Writing, Canva, Social Media Marketing     |
+Thinesh Kumar        | 1231203291  | thinesh.kumar@mmu.edu.my   |0.00| IT         | Android Development, Java, SQLite                  |
+Leong Wei Ming       | 1231203292  | leong.wei.ming@mmu.edu.my  |0.00| Accounting | C#, .NET, SQL                                      |
+Maya Shanti          | 1231203293  | maya.shanti@mmu.edu.my     |0.00| Business   | Marketing, Social Media, SEO                       |
+edwin ceo|1231203190|mone@gmail.com|0.00|IT|Java|
