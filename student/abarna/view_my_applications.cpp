@@ -6,20 +6,17 @@
 #include "../shared/student_structures.hpp"
 using namespace std;
 
-// Split a line using ',' delimiter
 vector<string> splitLine(const string& line, char delimiter = ',') {
     vector<string> tokens;
     stringstream ss(line);
     string token;
-    while (getline(ss, token, delimiter)) {
+    while (getline(ss, token, delimiter))
         tokens.push_back(token);
-    }
     return tokens;
 }
 
-// Load and display applications for the given student ID
-void viewApplications(const string& studentID, const string& filename) {
-    ifstream file(filename.c_str());
+void viewApplications(const string& studentID) {
+    ifstream file("../shared/applications.txt");
     if (!file) {
         cerr << "Error: Could not open applications.txt\n";
         return;
@@ -27,35 +24,21 @@ void viewApplications(const string& studentID, const string& filename) {
 
     string line;
     bool found = false;
-    cout << "\nYour Internship Applications:\n";
-    cout << "------------------------------------------\n";
-
+    cout << "\nYour Internship Applications:\n"
+         << "------------------------------------------\n";
     while (getline(file, line)) {
         vector<string> parts = splitLine(line, ',');
         if (parts.size() >= 5 && parts[0] == studentID) {
-            cout << "Job ID    : " << parts[1] << endl;
-            cout << "Job Title : " << parts[2] << endl;
-            cout << "Company   : " << parts[3] << endl;
-            cout << "Status    : " << parts[4] << endl;
-            cout << "------------------------------------------\n";
+            cout << "Job ID    : " << parts[1] << "\n"
+                 << "Job Title : " << parts[2] << "\n"
+                 << "Company   : " << parts[3] << "\n"
+                 << "Status    : " << parts[4] << "\n"
+                 << "------------------------------------------\n";
             found = true;
         }
     }
-
-    if (!found) {
-        cout << "No applications found for Student ID: " << studentID << endl;
-    }
-
+    if (!found)
+        cout << "No applications found for Student ID: " << studentID << "\n";
     file.close();
-}
-
-int main() {
-    string studentID;
-    cout << "Enter your Student ID to view applications: ";
-    cin >> studentID;
-
-    viewApplications(studentID, "../shared/applications.txt");
-
-    return 0;
 }
 
