@@ -165,6 +165,8 @@ public:
     friend class InternshipSystem;
 };
 
+
+
 // Derived class - Student
 class Student : public Person 
 {
