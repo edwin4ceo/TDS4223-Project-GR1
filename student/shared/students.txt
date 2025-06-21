@@ -17,4 +17,4 @@ Siti Noraini         | 1231203290  | siti.noraini@mmu.edu.my    | 3.60 | Busines
 Thinesh Kumar        | 1231203291  | thinesh.kumar@mmu.edu.my   | 2.40 | IT         | Android Development, Java, SQLite                  |         
 Leong Wei Ming       | 1231203292  | leong.wei.ming@mmu.edu.my  | 3.35 | Accounting | C#, .NET, SQL                                      | 
 Maya Shanti          | 1231203293  | maya.shanti@mmu.edu.my     | 3.55 | Business   | Marketing, Social Media, SEO                       | 
-edwin ceo|1231203190|mone@gmail.com|3.98|IT|Java|
+edwin ceo|1231203190|mone@gmail.com|3.98|IT|Java|1231201130|Riashini a/p Manoj Kumar|riawee25@gmail.com|3.7|Diploma in IT|Java, HTML, PHP, C++, Python|
