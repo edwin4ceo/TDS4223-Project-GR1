@@ -8,668 +8,407 @@
 #include <limits>
 #include <ctime>
 #include <cctype>
+#include <vector>
+#include <algorithm>
+#include <string>
 using namespace std;
 
 // Constants
-
 const int MAX_STUDENTS = 100;
-
 const int MAX_APPLICATIONS = 200;
-
 const int TABLE_SIZE = 10;
-
 const int MAX_JOBS = 50;
-
 const int MAX_STAFF = 20;
-
 const string LOG_FILE = "system_log.txt";
 
 
-
 // Forward declarations
-
 class Person;
-
 class Student;
-
 class Admin;
-
 class Staff;
-
 class InternshipJob;
-
 class Application;
 
 
-
 // Exception classes for error handling
-
 class FileException : public exception 
-
 {
-
 private:
-
     string message;
 
 public:
-
     FileException(const string& msg) : message(msg) {}
-
     virtual ~FileException() throw() {}
-
-    virtual const char* what() const throw() {
-
+    virtual const char* what() const throw() 
+	{
         return message.c_str();
 
     }
-
 };
-
 
 
 class LoginException : public exception 
-
 {
-
 private:
-
     string message;
 
 public:
-
     LoginException(const string& msg) : message(msg) {}
-
     virtual ~LoginException() throw() {}
-
-    virtual const char* what() const throw() {
-
+    virtual const char* what() const throw() 
+	{
         return message.c_str();
-
     }
-
 };
-
 
 
 class DataException : public exception 
-
 {
-
 private:
-
     string message;
 
 public:
-
     DataException(const string& msg) : message(msg) {}
-
     virtual ~DataException() throw() {}
-
-    virtual const char* what() const throw() {
-
+    virtual const char* what() const throw() 
+	{
         return message.c_str();
-
     }
-
 };
-
 
 
 class SecurityException : public exception 
-
 {
-
 private:
-
     string message;
 
 public:
-
     SecurityException(const string& msg) : message(msg) {}
-
     virtual ~SecurityException() throw() {}
-
-    virtual const char* what() const throw() {
-
+    virtual const char* what() const throw() 
+	{
         return message.c_str();
-
     }
-
 };
 
 
-
 // Log entry structure
-
 struct LogEntry 
-
 {
-
     string timestamp;
-
     string eventType;
-
     string details;
 
-    
 
-    LogEntry(string type, string desc) {
-
+    LogEntry(string type, string desc) 
+	{
         time_t now = time(0);
-
         timestamp = ctime(&now);
-
         timestamp = timestamp.substr(0, timestamp.length()-1); // Remove newline
-
         eventType = type;
-
         details = desc;
-
     }
 
     
 
-    string toString() const {
-
+    string toString() const 
+	{
         return timestamp + " | " + eventType + " | " + details;
-
     }
-
 };
 
 
 
 // Dynamic Non-Primitive Data Structure - Linked List for Applications
-
 struct ApplicationNode 
-
 {
-
     string studentID;
-
     string jobID;
-
     string jobTitle;
-
     string company;
-
     string status;
-
     ApplicationNode* next;
 
-    
 
-    ApplicationNode(string sid, string jid, string title, string comp, string stat) 
-
+    ApplicationNode(string sid, string jid, string title, string comp, string stat)
         : studentID(sid), jobID(jid), jobTitle(title), company(comp), status(stat), next(NULL) {}
-
 };
-
 
 
 class ApplicationList 
-
 {
-
 private:
-
     ApplicationNode* head;
-
     int count;
 
-    
-
 public:
-
     ApplicationList() : head(NULL), count(0) {}
-
-    
-
     ~ApplicationList() 
-
     {
-
         clear();
-
     }
 
-    
 
     void insert(string studentID, string jobID, string jobTitle, string company, string status);
-
     void display();
-
     void clear();
-
     bool search(string studentID, string jobID);
-
     void saveToFile(const string& filename);
-
     void loadFromFile(const string& filename);
-
     int getCount() const { return count; }
-
     
 
     friend class Student;
-
     friend class Admin;
-
 };
-
 
 
 // Base class - Person
-
 class Person 
-
 {
-
 protected:
-
     string id;
-
     string name;
-
     string email;
-
     
-
 public:
-
     Person() : id(""), name(""), email("") {}
-
     Person(string id, string name, string email) : id(id), name(name), email(email) {}
-
     virtual ~Person() {}
 
-    
 
     virtual void displayInfo() = 0;
-
     virtual bool login() = 0;
-
     
 
     // Overloaded functions
-
     void setInfo(string id);
-
     void setInfo(string id, string name);
-
     void setInfo(string id, string name, string email);
 
-    
 
     string getID() const { return id; }
-
     string getName() const { return name; }
-
     string getEmail() const { return email; }
 
-    
 
     friend class InternshipSystem;
-
 };
 
 // Derived class - Student
-
 class Student : public Person 
-
 {
-
 private:
-
     float cgpa;
-
     string diploma;
-
     string skills;
-
     static int totalStudents;
 
-    
-
 public:
-
     Student() : Person(), cgpa(0.0), diploma(""), skills("") { totalStudents++; }
-
     Student(string id, string name, string email, float cgpa, string diploma, string skills)
-
         : Person(id, name, email), cgpa(cgpa), diploma(diploma), skills(skills) { totalStudents++; }
 
-    
 
     ~Student() { totalStudents--; }
 
-    
-
     void displayInfo();
-
     bool login();
 
     
 
     // Overloaded functions
-
     void updateProfile();
-
     void updateProfile(string newEmail);
-
     void updateProfile(string newEmail, float newCGPA);
-
     void updateProfile(string newEmail, float newCGPA, string newSkills);
 
-    
 
     void viewInternships();
-
     void applyForInternship();
-
     void viewMyApplications();
-
     void generateSummaryReport();
 
-    
 
     // Getters and Setters
-
     float getCGPA() const { return cgpa; }
-
     string getDiploma() const { return diploma; }
-
     string getSkills() const { return skills; }
-
     
 
     void setCGPA(float cgpa) { this->cgpa = cgpa; }
-
     void setDiploma(string diploma) { this->diploma = diploma; }
-
     void setSkills(string skills) { this->skills = skills; }
 
     
-
     static int getTotalStudents() { return totalStudents; }
 
-    
 
     friend void saveStudentToFile(Student& student, ostream& file);
-
     friend class Admin;
-
 };
-
 
 
 // Derived class - Admin
-
 class Admin : public Person 
-
 {
-
 private:
-
     string password;
-
     string role;
-
     static int totalAdmins;
 
-    
 
 public:
-
     Admin() : Person(), password(""), role("Admin") { totalAdmins++; }
-
     Admin(string id, string name, string email, string password)
-
         : Person(id, name, email), password(password), role("Admin") { totalAdmins++; }
 
-    
 
     ~Admin() { totalAdmins--; }
 
-    
 
     void displayInfo();
-
     bool login();
 
-    
 
     void manageStudents();
-
     void manageInternships();
-
     void viewAllApplications();
-
     void generateReports();
-
     void manageStaff();
 
-    
 
     static int getTotalAdmins() { return totalAdmins; }
 
-    
 
     friend void saveAdminToFile(Admin& admin, ostream& file);
-
     friend class InternshipSystem;
-
 };
-
 
 
 // New Staff class
 
 class Staff : public Person 
-
 {
-
 private:
-
     string department;
-
     string position;
-
     string password;
-
     static int totalStaff;
 
-    
 
 public:
-
     Staff() : Person(), department(""), position(""), password("") { totalStaff++; }
-
     Staff(string id, string name, string email, string dept, string pos, string pwd)
-
         : Person(id, name, email), department(dept), position(pos), password(pwd) { totalStaff++; }
 
     
-
     ~Staff() { totalStaff--; }
 
     
-
     void displayInfo();
-
     bool login();
 
-    
 
     void processApplications();
-
     void generateDepartmentReport();
 
-    
 
     string getDepartment() const { return department; }
-
     string getPosition() const { return position; }
 
-    
 
     void setDepartment(string dept) { department = dept; }
-
     void setPosition(string pos) { position = pos; }
 
-    
 
     static int getTotalStaff() { return totalStaff; }
 
-    
 
     friend void saveStaffToFile(Staff& staff, ostream& file);
-
 };
 
 
-
 // InternshipJob class
-
 class InternshipJob 
-
 {
-
 private:
-
     string jobID;
-
     string title;
-
     string company;
-
     string deadline;
-
     string requirements;
-
     bool isActive;
 
-    
 
 public:
-
     InternshipJob() : jobID(""), title(""), company(""), deadline(""), requirements(""), isActive(true) {}
-
     InternshipJob(string id, string title, string company, string deadline, string req)
-
         : jobID(id), title(title), company(company), deadline(deadline), requirements(req), isActive(true) {}
 
-    
 
     ~InternshipJob() {}
 
-    
 
     // Overloaded display functions
-
     void display();
-
     void display(bool showDetails);
-
     void display(string format);
-
     void display(bool showDetails, string format);
 
-    
 
     // Getters
-
     string getJobID() const { return jobID; }
-
     string getTitle() const { return title; }
-
     string getCompany() const { return company; }
-
     string getDeadline() const { return deadline; }
-
     string getRequirements() const { return requirements; }
 
     bool getIsActive() const { return isActive; }
 
-    
 
     // Setters
-
     void setJobID(string id) { jobID = id; }
-
     void setTitle(string title) { this->title = title; }
-
     void setCompany(string company) { this->company = company; }
-
     void setDeadline(string deadline) { this->deadline = deadline; }
-
     void setRequirements(string req) { requirements = req; }
-
     void setActive(bool active) { isActive = active; }
 
-    
 
     friend void saveJobToFile(InternshipJob& job, ostream& file);
-
     friend class Admin;
-
     friend class Student;
-
 };
-
 
 
 // Hash Table for fast student lookup
-
 class StudentHashTable 
-
 {
-
 private:
-
     Student** table;
-
     int size;
-
     int count;
-
-    
-
     int hash(string key);
 
-    
 
 public:
-
     StudentHashTable(int size = TABLE_SIZE);
-
     ~StudentHashTable();
 
-    
-
     void insert(Student* student);
-
     Student* search(string studentID);
-
     void remove(string studentID);
-
     void display();
-
     double getLoadFactor() const { return (double)count / size; }
-
 };
 
 
-
 // Main System class
-
 class InternshipSystem 
-
 {
-
 private:
-
     // vector<Student*> students;     //  Remove
     // vector<Admin*> admins;         //  Remove
     // vector<Staff*> staffMembers;   //  Remove
@@ -687,122 +426,71 @@ private:
     int jobCount;
 
     ApplicationList* applications;
-
     StudentHashTable* studentHash;
-
-    
 
     void initializeSampleData();
 
-    
 
     // Utility functions
-
     string trim(const string& str);
-
     long long stringToLongLong(const string& str);
-
     float stringToFloat(const string& str);
-
     string encryptPassword(const string& password);
-
     string decryptPassword(const string& encrypted);
-
     void logEvent(const string& eventType, const string& details);
 
-    
 
 public:
-
     InternshipSystem();
-
     ~InternshipSystem();
 
-    
 
     // File operations
-
     void loadStudentsFromFile();
-
     void saveStudentsToFile();
-
     void loadJobsFromFile();
-
     void saveJobsToFile();
-
     void loadApplicationsFromFile();
-
     void saveApplicationsToFile();
-
     void loadStaffFromFile();
-
     void saveStaffToFile();
-
     void loadAdminsFromFile();
-
     void saveAdminsToFile();
 
-    
 
     // System operations
-
     void mainMenu();
-
     void studentMenu();
-
     void adminMenu();
-
     void staffMenu();
 
-    
 
     // Sorting algorithms (manually implemented)
-
     void selectionSortStudentsByCGPA();
-
     void selectionSortStudentsByID();
-
     void bubbleSortJobsByDeadline();
-
     void mergeSortJobsByCompany(int low, int high);
-
     void mergeJobsByCompany(int low, int mid, int high);
 
-    
 
     // Searching algorithms (manually implemented)
-
     int binarySearchStudentByID(string targetID);
-
     Student* hashSearchStudent(string studentID);
-
     int linearSearchJobByTitle(string title);
-
     int fibonacciSearchStudentByID(string targetID);
-
     int interpolationSearchStudentByCGPA(float targetCGPA);
 
-    
 
     // System management
-
     void registerStudent();
-
     void registerAdmin();
-
     void registerStaff();
-
     void addInternshipJob();
-
     void displayAllStudents();
-
     void displayAllJobs();
-
     void displayAllStaff();
-
     void displayStatistics();
 
-    
 
     // Validation functions
 
@@ -1235,103 +923,81 @@ bool Student::login()
 
 
 
-void Student::updateProfile() 
-
+void Student::updateProfile()
 {
-
     cout << "\n=== Update Profile ===" << endl;
-
+    //email
     cout << "Current Email: " << email << endl;
-
     cout << "Enter new email (or press Enter to keep current): ";
-
     cin.ignore();
-
     string newEmail;
-
     getline(cin, newEmail);
-
     if (!newEmail.empty()) {
-
         email = newEmail;
-
+    }
+    
+    // CGPA
+    cout << "Current CGPA: " << cgpa << endl;
+    cout << "Enter new CGPA (or -1 to keep current): ";
+    float newCGPA;
+    cin >> newCGPA;
+    cin.ignore();
+    if (newCGPA >= 0.0 && newCGPA <= 4.0) {
+        cgpa = newCGPA;
     }
 
+    // Skills
+    cout << "Current Skills: " << skills << endl;
+    cout << "Enter new skills (or press Enter to keep current): ";
+    string newSkills;
+    getline(cin, newSkills);
+    if (!newSkills.empty()) {
+        skills = newSkills;
+    }
 }
 
 
 
 void Student::updateProfile(string newEmail) 
-
 {
-
     email = newEmail;
-
     cout << "Email updated successfully!" << endl;
-
 }
-
 
 
 void Student::updateProfile(string newEmail, float newCGPA) 
-
 {
-
     email = newEmail;
-
     cgpa = newCGPA;
-
     cout << "Email and CGPA updated successfully!" << endl;
-
 }
-
 
 
 void Student::updateProfile(string newEmail, float newCGPA, string newSkills) 
-
 {
-
     email = newEmail;
-
     cgpa = newCGPA;
-
     skills = newSkills;
-
     cout << "Profile updated successfully!" << endl;
-
 }
 
 
-
 void Student::viewInternships() 
-
 {
-
     try {
-
         ifstream file("job_listings.txt");
-
         if (!file.is_open()) {
-
             throw FileException("Cannot open job_listings.txt");
-
         }
 
-        
 
         cout << "\n=== Available Internships ===" << endl;
-
         cout << left << setw(8) << "Job ID" 
-
              << setw(25) << "Title" 
-
              << setw(20) << "Company" 
-
              << setw(12) << "Deadline" << endl;
-
         cout << string(65, '-') << endl;
 
-        
 
         string line;
 
@@ -1340,39 +1006,23 @@ void Student::viewInternships()
         {
 
             stringstream ss(line);
-
             string jobID, title, company, deadline;
 
-            
-
             getline(ss, jobID, '|');
-
             getline(ss, title, '|');
-
             getline(ss, company, '|');
-
             getline(ss, deadline, '|');
 
-            
 
             cout << left << setw(8) << jobID
-
                  << setw(25) << title
-
                  << setw(20) << company
-
                  << setw(12) << deadline << endl;
-
         }
-
         file.close();
-
     } catch (const FileException& e) {
-
         cout << "Error: " << e.what() << endl;
-
     }
-
 }
 
 
@@ -1764,35 +1414,117 @@ bool Admin::login()
 }
 
 
-
-void Admin::manageStudents() 
-
+void Admin::manageStudents()
 {
-
     int choice;
-
     cout << "\n=== Student Management ===" << endl;
-
     cout << "1. View All Students" << endl;
-
     cout << "2. Add New Student" << endl;
-
     cout << "3. Edit Student" << endl;
-
     cout << "4. Delete Student" << endl;
-
     cout << "Enter choice: ";
-
     cin >> choice;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-    
+    std::vector<Student> studentList;
 
-    // Implementation would go here
+    // Load students from file
+    ifstream file("students.txt");
+    string line;
+    while (getline(file, line)) {
+        if (line.empty()) continue;
+        stringstream ss(line);
+        string id, name, email, cgpaStr, diploma, skills;
+        getline(ss, id, '|');
+        getline(ss, name, '|');
+        getline(ss, email, '|');
+        getline(ss, cgpaStr, '|');
+        getline(ss, diploma, '|');
+        getline(ss, skills, '|');
+        float cgpa = 0.0;
+        std::stringstream ss2;
+        ss >> cgpa;
+        Student s(id, name, email, cgpa, diploma, skills);
+        studentList.push_back(s);
+    }
+    file.close();
 
-    cout << "Feature under development..." << endl;
-
+    if (choice == 1) {
+        cout << "\n=== Student List ===\n";
+        for (size_t i = 0; i < studentList.size(); ++i) {
+            studentList[i].displayInfo();
 }
+            cout << "----------------------\n";
+        }
 
+    else if (choice == 2) {
+        string id, name, email, diploma, skills;
+        float cgpa;
+        cout << "Enter Student ID: ";
+        getline(cin, id);
+        cout << "Enter Name: ";
+        getline(cin, name);
+        cout << "Enter Email: ";
+        getline(cin, email);
+        cout << "Enter CGPA: ";
+        cin >> cgpa; cin.ignore();
+        cout << "Enter Diploma: ";
+        getline(cin, diploma);
+        cout << "Enter Skills: ";
+        getline(cin, skills);
+
+        Student newStudent(id, name, email, cgpa, diploma, skills);
+        studentList.push_back(newStudent);
+        cout << "Student added.\n";
+    }
+    else if (choice == 3) {
+        string editID;
+        cout << "Enter Student ID to edit: ";
+        getline(cin, editID);
+        bool found = false;
+        for (size_t i = 0; i < studentList.size(); ++i) {
+            if (studentList[i].getID() == editID) {
+                cout << "Editing student: " << studentList[i].getName() << endl;
+                studentList[i].updateProfile();  // calls the interactive update version
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            cout << "Student ID not found.\n";
+        }
+        
+        } else if (choice == 4) {
+        string deleteID;
+        cout << "Enter Student ID to delete: ";
+        getline(cin, deleteID);
+        bool found = false;
+        for (vector<Student>::iterator it = studentList.begin(); it != studentList.end(); ++it) {
+            if (it->getID() == deleteID) {
+                studentList.erase(it);
+                found = true;
+                cout << "Student deleted.\n";
+                break;
+            }
+        }
+        if (!found) {
+            cout << "Student ID not found.\n";
+        }
+    } else {
+        cout << "Invalid choice.\n";
+    }
+
+    // Save updated list back to students.txt
+    ofstream outFile("students.txt");
+    for (size_t i = 0; i < studentList.size(); ++i) 
+	{
+        outFile << studentList[i].getID() << "|" << studentList[i].getName() << "|"
+                << studentList[i].getEmail() << "|" << fixed << setprecision(2)
+                << studentList[i].getCGPA() << "|" << studentList[i].getDiploma() << "|"
+                << studentList[i].getSkills() << "|" << endl;
+            }
+    outFile.close();
+}
 
 
 void Admin::manageInternships() 

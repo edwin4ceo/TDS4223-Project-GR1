@@ -1,0 +1,5 @@
+Application Summary for Student ID: 
+Total Applications: 17
+Approved: 0
+Rejected: 0
+Pending: 17
