@@ -670,10 +670,10 @@ class InternshipSystem
 
 private:
 
-    // vector<Student*> students;     // ❌ Remove
-    // vector<Admin*> admins;         // ❌ Remove
-    // vector<Staff*> staffMembers;   // ❌ Remove
-    // vector<InternshipJob*> jobs;   // ❌ Remove
+    // vector<Student*> students;     //  Remove
+    // vector<Admin*> admins;         //  Remove
+    // vector<Staff*> staffMembers;   //  Remove
+    // vector<InternshipJob*> jobs;   //  Remove
     
     // Replace with raw arrays
     Student* students[MAX_STUDENTS];
@@ -1703,13 +1703,13 @@ bool Admin::login()
 
         
 
-        ifstream file("admin_login.txt");
+        ifstream file("login_admin.txt");
 
         if (!file.is_open()) 
 
         {
 
-            throw FileException("Cannot open admin_login.txt");
+            throw FileException("Cannot open login_admin.txt");
 
         }
 
