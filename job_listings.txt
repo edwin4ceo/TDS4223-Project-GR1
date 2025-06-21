@@ -1,0 +1,10 @@
+INT001|Software Developer|Amazon|2025-08-01
+INT002|Marketing Assistant|Shopee|2025-08-15
+INT003|Data Analyst|Google|2025-07-28
+INT004|UX Designer|Grab|2025-09-10
+INT005|IT Support Technician|Dell|2025-08-05
+INT006|Graphic Designer|Canva|2025-07-25
+INT007|Mobile App Developer|TikTok|2025-09-01
+INT008|Business Analyst|AirAsia|2025-08-18
+INT009|Accounting Intern|PwC|2025-07-30
+INT010|Cybersecurity Intern|CyberSecurity Malaysia|2025-08-20

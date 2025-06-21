@@ -8,6 +8,8 @@
 #include <limits>
 #include <vector>
 #include <algorithm>
+#include <ctime>
+#include <cctype>
 using namespace std;
 
 // Constants
@@ -15,11 +17,14 @@ const int MAX_STUDENTS = 100;
 const int MAX_APPLICATIONS = 200;
 const int TABLE_SIZE = 10;
 const int MAX_JOBS = 50;
+const int MAX_STAFF = 20;
+const string LOG_FILE = "system_log.txt";
 
 // Forward declarations
 class Person;
 class Student;
 class Admin;
+class Staff;
 class InternshipJob;
 class Application;
 
@@ -30,8 +35,8 @@ private:
     string message;
 public:
     FileException(const string& msg) : message(msg) {}
-    virtual ~FileException() throw() {}  // Changed from noexcept to throw()
-    virtual const char* what() const throw() {  // Changed from noexcept to throw()
+    virtual ~FileException() throw() {}
+    virtual const char* what() const throw() {
         return message.c_str();
     }
 };
@@ -42,8 +47,8 @@ private:
     string message;
 public:
     LoginException(const string& msg) : message(msg) {}
-    virtual ~LoginException() throw() {}  // Changed from noexcept to throw()
-    virtual const char* what() const throw() {  // Changed from noexcept to throw()
+    virtual ~LoginException() throw() {}
+    virtual const char* what() const throw() {
         return message.c_str();
     }
 };
@@ -54,9 +59,41 @@ private:
     string message;
 public:
     DataException(const string& msg) : message(msg) {}
-    virtual ~DataException() throw() {}  // Changed from noexcept to throw()
-    virtual const char* what() const throw() {  // Changed from noexcept to throw()
+    virtual ~DataException() throw() {}
+    virtual const char* what() const throw() {
         return message.c_str();
+    }
+};
+
+class SecurityException : public exception 
+{
+private:
+    string message;
+public:
+    SecurityException(const string& msg) : message(msg) {}
+    virtual ~SecurityException() throw() {}
+    virtual const char* what() const throw() {
+        return message.c_str();
+    }
+};
+
+// Log entry structure
+struct LogEntry 
+{
+    string timestamp;
+    string eventType;
+    string details;
+    
+    LogEntry(string type, string desc) {
+        time_t now = time(0);
+        timestamp = ctime(&now);
+        timestamp = timestamp.substr(0, timestamp.length()-1); // Remove newline
+        eventType = type;
+        details = desc;
+    }
+    
+    string toString() const {
+        return timestamp + " | " + eventType + " | " + details;
     }
 };
 
@@ -84,7 +121,7 @@ public:
     ApplicationList() : head(NULL), count(0) {}
     
     ~ApplicationList() 
-	{
+    {
         clear();
     }
     
@@ -169,7 +206,7 @@ public:
     
     static int getTotalStudents() { return totalStudents; }
     
-    friend void saveStudentToFile(const Student& student);
+    friend void saveStudentToFile(Student& student, ostream& file);
     friend class Admin;
 };
 
@@ -195,10 +232,45 @@ public:
     void manageInternships();
     void viewAllApplications();
     void generateReports();
+    void manageStaff();
     
     static int getTotalAdmins() { return totalAdmins; }
     
+    friend void saveAdminToFile(Admin& admin, ostream& file);
     friend class InternshipSystem;
+};
+
+// New Staff class
+class Staff : public Person 
+{
+private:
+    string department;
+    string position;
+    string password;
+    static int totalStaff;
+    
+public:
+    Staff() : Person(), department(""), position(""), password("") { totalStaff++; }
+    Staff(string id, string name, string email, string dept, string pos, string pwd)
+        : Person(id, name, email), department(dept), position(pos), password(pwd) { totalStaff++; }
+    
+    ~Staff() { totalStaff--; }
+    
+    void displayInfo();
+    bool login();
+    
+    void processApplications();
+    void generateDepartmentReport();
+    
+    string getDepartment() const { return department; }
+    string getPosition() const { return position; }
+    
+    void setDepartment(string dept) { department = dept; }
+    void setPosition(string pos) { position = pos; }
+    
+    static int getTotalStaff() { return totalStaff; }
+    
+    friend void saveStaffToFile(Staff& staff, ostream& file);
 };
 
 // InternshipJob class
@@ -241,6 +313,7 @@ public:
     void setRequirements(string req) { requirements = req; }
     void setActive(bool active) { isActive = active; }
     
+    friend void saveJobToFile(InternshipJob& job, ostream& file);
     friend class Admin;
     friend class Student;
 };
@@ -272,6 +345,7 @@ class InternshipSystem
 private:
     vector<Student*> students;
     vector<Admin*> admins;
+    vector<Staff*> staffMembers;
     vector<InternshipJob*> jobs;
     ApplicationList* applications;
     StudentHashTable* studentHash;
@@ -282,6 +356,9 @@ private:
     string trim(const string& str);
     long long stringToLongLong(const string& str);
     float stringToFloat(const string& str);
+    string encryptPassword(const string& password);
+    string decryptPassword(const string& encrypted);
+    void logEvent(const string& eventType, const string& details);
     
 public:
     InternshipSystem();
@@ -294,36 +371,47 @@ public:
     void saveJobsToFile();
     void loadApplicationsFromFile();
     void saveApplicationsToFile();
+    void loadStaffFromFile();
+    void saveStaffToFile();
+    void loadAdminsFromFile();
+    void saveAdminsToFile();
     
     // System operations
     void mainMenu();
     void studentMenu();
     void adminMenu();
+    void staffMenu();
     
     // Sorting algorithms (manually implemented)
     void selectionSortStudentsByCGPA();
     void selectionSortStudentsByID();
     void bubbleSortJobsByDeadline();
+    void mergeSortJobsByCompany(int low, int high);
+    void mergeJobsByCompany(int low, int mid, int high);
     
     // Searching algorithms (manually implemented)
     int binarySearchStudentByID(string targetID);
     Student* hashSearchStudent(string studentID);
+    int linearSearchJobByTitle(string title);
     
     // System management
     void registerStudent();
     void registerAdmin();
+    void registerStaff();
     void addInternshipJob();
     void displayAllStudents();
     void displayAllJobs();
+    void displayAllStaff();
     void displayStatistics();
     
-    friend void saveSystemData(const InternshipSystem& system);
+    friend void saveSystemData(InternshipSystem& system);
     friend void loadSystemData(InternshipSystem& system);
 };
 
 // Static member initialization
 int Student::totalStudents = 0;
 int Admin::totalAdmins = 0;
+int Staff::totalStaff = 0;
 
 // Implementation of ApplicationList methods
 void ApplicationList::insert(string studentID, string jobID, string jobTitle, string company, string status) 
@@ -334,7 +422,7 @@ void ApplicationList::insert(string studentID, string jobID, string jobTitle, st
     } else {
         ApplicationNode* current = head;
         while (current->next != NULL) 
-		{
+        {
             current = current->next;
         }
         current->next = newNode;
@@ -378,7 +466,7 @@ bool ApplicationList::search(string studentID, string jobID)
     ApplicationNode* current = head;
     while (current != NULL) {
         if (current->studentID == studentID && current->jobID == jobID) 
-		{
+        {
             return true;
         }
         current = current->next;
@@ -391,13 +479,13 @@ void ApplicationList::saveToFile(const string& filename)
     try {
         ofstream file(filename.c_str());
         if (!file.is_open()) 
-		{
+        {
             throw FileException("Cannot open file for writing: " + filename);
         }
         
         ApplicationNode* current = head;
         while (current != NULL) 
-		{
+        {
             file << current->studentID << "|" << current->jobID << "|"
                  << current->jobTitle << "|" << current->company << "|"
                  << current->status << endl;
@@ -405,7 +493,7 @@ void ApplicationList::saveToFile(const string& filename)
         }
         file.close();
     } catch (const FileException& e) 
-	{
+    {
         cout << "Error: " << e.what() << endl;
     }
 }
@@ -422,7 +510,7 @@ void ApplicationList::loadFromFile(const string& filename)
         
         string line;
         while (getline(file, line)) {
-        	
+            
             if (line.empty()) continue;
             
             stringstream ss(line);
@@ -438,7 +526,7 @@ void ApplicationList::loadFromFile(const string& filename)
         }
         file.close();
     } catch (const FileException& e) 
-	{
+    {
         cout << "Error: " << e.what() << endl;
     }
 }
@@ -488,9 +576,9 @@ bool Student::login()
         
         string line;
         while (getline(file, line)) 
-		{
+        {
             if (line.find(inputID) != string::npos) 
-			{
+            {
                 file.close();
                 return true;
             }
@@ -554,7 +642,7 @@ void Student::viewInternships()
         
         string line;
         while (getline(file, line)) 
-		{
+        {
             stringstream ss(line);
             string jobID, title, company, deadline;
             
@@ -592,7 +680,7 @@ void Student::applyForInternship()
         string line;
         
         while (getline(jobFile, line)) 
-		{
+        {
             if (line.find(jobID) == 0) {
                 stringstream ss(line);
                 string tempID;
@@ -713,7 +801,7 @@ void Student::generateSummaryReport()
         cout << "Summary saved to student_summary_" << id << ".txt" << endl;
         
     } catch (const FileException& e) 
-	{
+    {
         cout << "Error: " << e.what() << endl;
     }
 }
@@ -739,21 +827,21 @@ bool Admin::login()
         
         ifstream file("admin_login.txt");
         if (!file.is_open()) 
-		{
+        {
             throw FileException("Cannot open admin_login.txt");
         }
         
         string line;
         while (getline(file, line)) 
-		{
+        {
             size_t delim = line.find(',');
             if (delim != string::npos) 
-			{
+            {
                 string storedID = line.substr(0, delim);
                 string storedPassword = line.substr(delim + 1);
                 
                 if (inputID == storedID && inputPassword == storedPassword) 
-				{
+                {
                     file.close();
                     id = inputID;
                     return true;
@@ -798,6 +886,20 @@ void Admin::manageInternships()
     cout << "Feature under development..." << endl;
 }
 
+void Admin::manageStaff() 
+{
+    int choice;
+    cout << "\n=== Staff Management ===" << endl;
+    cout << "1. View All Staff" << endl;
+    cout << "2. Add New Staff" << endl;
+    cout << "3. Edit Staff" << endl;
+    cout << "4. Delete Staff" << endl;
+    cout << "Enter choice: ";
+    cin >> choice;
+    
+    cout << "Staff management feature under development..." << endl;
+}
+
 void Admin::viewAllApplications() 
 {
     try {
@@ -816,7 +918,7 @@ void Admin::viewAllApplications()
         
         string line;
         while (getline(file, line)) 
-		{
+        {
             stringstream ss(line);
             string studentID, jobID, jobTitle, company, status;
             
@@ -834,7 +936,7 @@ void Admin::viewAllApplications()
         }
         file.close();
     } catch (const FileException& e) 
-	{
+    {
         cout << "Error: " << e.what() << endl;
     }
 }
@@ -844,7 +946,80 @@ void Admin::generateReports()
     cout << "\n=== System Reports ===" << endl;
     cout << "Total Students: " << Student::getTotalStudents() << endl;
     cout << "Total Admins: " << Admin::getTotalAdmins() << endl;
+    cout << "Total Staff: " << Staff::getTotalStaff() << endl;
     // Additional reporting logic would go here
+}
+
+// Implementation of Staff methods
+void Staff::displayInfo() 
+{
+    cout << "\n=== Staff Information ===" << endl;
+    cout << "ID: " << id << endl;
+    cout << "Name: " << name << endl;
+    cout << "Email: " << email << endl;
+    cout << "Department: " << department << endl;
+    cout << "Position: " << position << endl;
+}
+
+bool Staff::login() 
+{
+    try {
+        string inputID, inputPassword;
+        cout << "Enter Staff ID: ";
+        cin >> inputID;
+        cout << "Enter Password: ";
+        cin >> inputPassword;
+        
+        ifstream file("staff.txt");
+        if (!file.is_open()) 
+        {
+            throw FileException("Cannot open staff.txt");
+        }
+        
+        string line;
+        while (getline(file, line)) 
+        {
+            stringstream ss(line);
+            string storedID, storedName, storedEmail, storedDept, storedPos, storedPwd;
+            
+            getline(ss, storedID, '|');
+            getline(ss, storedName, '|');
+            getline(ss, storedEmail, '|');
+            getline(ss, storedDept, '|');
+            getline(ss, storedPos, '|');
+            getline(ss, storedPwd, '|');
+            
+            if (inputID == storedID && inputPassword == storedPwd) 
+            {
+                file.close();
+                id = inputID;
+                name = storedName;
+                email = storedEmail;
+                department = storedDept;
+                position = storedPos;
+                return true;
+            }
+        }
+        file.close();
+        throw LoginException("Invalid staff credentials");
+    } catch (const exception& e) {
+        cout << "Login Error: " << e.what() << endl;
+        return false;
+    }
+}
+
+void Staff::processApplications() 
+{
+    cout << "\nProcessing internship applications..." << endl;
+    // Implementation would go here
+    cout << "Application processing feature under development..." << endl;
+}
+
+void Staff::generateDepartmentReport() 
+{
+    cout << "\nGenerating department report for " << department << "..." << endl;
+    // Implementation would go here
+    cout << "Department reporting feature under development..." << endl;
 }
 
 // Implementation of InternshipJob methods
@@ -858,7 +1033,7 @@ void InternshipJob::display(bool showDetails)
 {
     display();
     if (showDetails) 
-	{
+    {
         cout << "Requirements: " << requirements << endl;
         cout << "Status: " << (isActive ? "Active" : "Inactive") << endl;
     }
@@ -867,7 +1042,7 @@ void InternshipJob::display(bool showDetails)
 void InternshipJob::display(string format) 
 {
     if (format == "CSV") 
-	{
+    {
         cout << jobID << "," << title << "," << company << "," << deadline << endl;
     } else {
         display();
@@ -877,10 +1052,10 @@ void InternshipJob::display(string format)
 void InternshipJob::display(bool showDetails, string format) 
 {
     if (format == "CSV") 
-	{
+    {
         display(format);
         if (showDetails) 
-		{
+        {
             cout << "," << requirements << "," << (isActive ? "Active" : "Inactive") << endl;
         }
     } else {
@@ -893,13 +1068,18 @@ StudentHashTable::StudentHashTable(int size) : size(size), count(0)
 {
     table = new Student*[size];
     for (int i = 0; i < size; i++) 
-	{
+    {
         table[i] = NULL;
     }
 }
 
 StudentHashTable::~StudentHashTable() 
 {
+    for (int i = 0; i < size; i++) {
+        if (table[i] != NULL) {
+            delete table[i];
+        }
+    }
     delete[] table;
 }
 
@@ -907,9 +1087,9 @@ int StudentHashTable::hash(string key)
 {
     int hash = 0;
     for (size_t i = 0; i < key.length(); i++) 
-	{
-    hash += key[i];
-}
+    {
+        hash = (hash * 31 + key[i]) % size;
+    }
     return hash % size;
 }
 
@@ -917,8 +1097,12 @@ void StudentHashTable::insert(Student* student)
 {
     int index = hash(student->getID());
     // Simple linear probing for collision resolution
+    int originalIndex = index;
     while (table[index] != NULL) {
         index = (index + 1) % size;
+        if (index == originalIndex) {
+            throw runtime_error("Hash table is full");
+        }
     }
     table[index] = student;
     count++;
@@ -930,9 +1114,9 @@ Student* StudentHashTable::search(string studentID)
     int originalIndex = index;
     
     while (table[index] != NULL) 
-	{
+    {
         if (table[index]->getID() == studentID) 
-		{
+        {
             return table[index];
         }
         index = (index + 1) % size;
@@ -947,9 +1131,10 @@ void StudentHashTable::remove(string studentID)
     int originalIndex = index;
     
     while (table[index] != NULL) 
-	{
+    {
         if (table[index]->getID() == studentID) 
-		{
+        {
+            delete table[index];
             table[index] = NULL;
             count--;
             return;
@@ -963,7 +1148,7 @@ void StudentHashTable::display()
 {
     cout << "\n=== Hash Table Contents ===" << endl;
     for (int i = 0; i < size; i++) 
-	{
+    {
         cout << "Index " << i << ": ";
         if (table[i] != NULL) {
             cout << table[i]->getID() << " - " << table[i]->getName();
@@ -974,6 +1159,33 @@ void StudentHashTable::display()
     }
 }
 
+// Friend functions implementations
+void saveStudentToFile(Student& student, ostream& file) 
+{
+    file << student.id << "|" << student.name << "|" << student.email << "|"
+         << fixed << setprecision(2) << student.cgpa << "|" 
+         << student.diploma << "|" << student.skills << "|\n";
+}
+
+void saveAdminToFile(Admin& admin, ostream& file) 
+{
+    file << admin.id << "|" << admin.name << "|" << admin.email << "|"
+         << admin.password << "|\n";
+}
+
+void saveStaffToFile(Staff& staff, ostream& file) 
+{
+    file << staff.id << "|" << staff.name << "|" << staff.email << "|"
+         << staff.department << "|" << staff.position << "|"
+         << staff.password << "|\n";
+}
+
+void saveJobToFile(InternshipJob& job, ostream& file) 
+{
+    file << job.jobID << "|" << job.title << "|" << job.company << "|"
+         << job.deadline << "|" << job.requirements << "|\n";
+}
+
 // Implementation of InternshipSystem methods
 InternshipSystem::InternshipSystem() 
 {
@@ -981,24 +1193,28 @@ InternshipSystem::InternshipSystem()
     studentHash = new StudentHashTable();
     
     // Initialize with some sample data
-    void initializeSampleData();
+    initializeSampleData();
 }
 
 InternshipSystem::~InternshipSystem() 
 {
     // Clean up dynamic memory
-    for (std::vector<Student*>::iterator it = students.begin(); it != students.end(); ++it) 
-	{
-    delete *it;
-}
+    for (size_t i = 0; i < students.size(); i++) 
+    {
+        delete students[i];
+    }
     for (size_t i = 0; i < admins.size(); i++) 
-{
-    delete admins[i];
-}
-for (size_t i = 0; i < jobs.size(); i++) 
-{
-    delete jobs[i];
-}
+    {
+        delete admins[i];
+    }
+    for (size_t i = 0; i < staffMembers.size(); i++) 
+    {
+        delete staffMembers[i];
+    }
+    for (size_t i = 0; i < jobs.size(); i++) 
+    {
+        delete jobs[i];
+    }
     delete applications;
     delete studentHash;
 }
@@ -1025,8 +1241,20 @@ void InternshipSystem::initializeSampleData()
     students.push_back(new Student("1231203293", "Maya Shanti", "maya.shanti@mmu.edu.my", 3.55, "Business", "Marketing, Social Media, SEO"));
     students.push_back(new Student("1231203190", "edwin ceo", "mone@gmail.com", 3.98, "IT", "Java"));
     students.push_back(new Student("1231201130", "Riashini a/p Manoj Kumar", "riawee25@gmail.com", 3.7, "IT", "Java, HTML, PHP, C++, Python"));
-}
     
+    // Sample staff
+    staffMembers.push_back(new Staff("STF1001", "Dr. Lim Wei Chen", "lim.wc@mmu.edu.my", "Career Services", "Manager", "pass123"));
+    staffMembers.push_back(new Staff("STF1002", "Ms. Nor Azlina", "nor.azlina@mmu.edu.my", "IT Department", "Coordinator", "pwd456"));
+    staffMembers.push_back(new Staff("STF1003", "Mr. Rajesh Kumar", "rajesh.k@mmu.edu.my", "Business Faculty", "Advisor", "secure789"));
+    
+    // Sample jobs
+    jobs.push_back(new InternshipJob("JOB1001", "Software Developer Intern", "Tech Solutions Sdn Bhd", "2023-12-15", "C++, Python, Problem Solving"));
+    jobs.push_back(new InternshipJob("JOB1002", "Marketing Intern", "Global Marketing Group", "2023-11-30", "Communication, Creativity, Social Media"));
+    jobs.push_back(new InternshipJob("JOB1003", "Finance Intern", "Capital Investments Berhad", "2024-01-10", "Accounting, Excel, Analytical Skills"));
+    
+    logEvent("SYSTEM", "Sample data initialized");
+}
+
 // Utility functions
 string InternshipSystem::trim(const string& str) 
 {
@@ -1048,9 +1276,55 @@ long long InternshipSystem::stringToLongLong(const string& str)
 float InternshipSystem::stringToFloat(const string& str) 
 {
     try {
-        return (float)atof(str.c_str());  // Replace stof with atof
+        return (float)atof(str.c_str());
     } catch (...) {
         return 0.0;
+    }
+}
+
+string InternshipSystem::encryptPassword(const string& password) 
+{
+    string encrypted = password;
+    for (size_t i = 0; i < encrypted.length(); i++) {
+        char c = encrypted[i];
+        if (isalpha(c)) {
+            char base = isupper(c) ? 'A' : 'a';
+            c = ((c - base + 3) % 26) + base;
+        } else if (isdigit(c)) {
+            c = ((c - '0' + 5) % 10) + '0';
+        }
+    }
+    return encrypted;
+}
+
+string InternshipSystem::decryptPassword(const string& encrypted) 
+{
+    string decrypted = encrypted;
+    for (size_t i = 0; i < decrypted.length(); i++) {
+        char c = decrypted[i];
+        if (isalpha(c)) {
+            char base = isupper(c) ? 'A' : 'a';
+            c = ((c - base - 3 + 26) % 26) + base;
+        } else if (isdigit(c)) {
+            c = ((c - '0' - 5 + 10) % 10) + '0';
+        }
+    }
+    return decrypted;
+}
+
+void InternshipSystem::logEvent(const string& eventType, const string& details) 
+{
+    try {
+        ofstream logFile(LOG_FILE.c_str(), ios::app);
+        if (!logFile.is_open()) {
+            throw FileException("Cannot open log file: " + LOG_FILE);
+        }
+        
+        LogEntry entry(eventType, details);
+        logFile << entry.toString() << endl;
+        logFile.close();
+    } catch (const FileException& e) {
+        cerr << "Logging Error: " << e.what() << endl;
     }
 }
 
@@ -1079,7 +1353,7 @@ void InternshipSystem::loadStudentsFromFile()
 
             float cgpa = stringToFloat(cgpaStr);
             if (students.size() < MAX_STUDENTS) 
-			{
+            {
                 Student* student = new Student(id, name, email, cgpa, diploma, skills);
                 students.push_back(student);
                 studentHash->insert(student);
@@ -1087,8 +1361,10 @@ void InternshipSystem::loadStudentsFromFile()
         }
         file.close();
         cout << "Loaded " << students.size() << " students from file.\n";
+        logEvent("SYSTEM", "Students loaded from file");
     } catch (const FileException& e) {
         cout << "Error: " << e.what() << endl;
+        logEvent("ERROR", e.what());
     }
 }
 
@@ -1101,16 +1377,126 @@ void InternshipSystem::saveStudentsToFile()
         }
 
         for (size_t i = 0; i < students.size(); i++) 
-		{
-    Student* student = students[i];
-            file << student->getID() << "|" << student->getName() << "|" << student->getEmail() << "|"
-                 << fixed << setprecision(2) << student->getCGPA() << "|" << student->getDiploma() << "|"
-                 << student->getSkills() << "|\n";
+        {
+            saveStudentToFile(*students[i], file);
         }
         file.close();
         cout << "Saved " << students.size() << " students to file.\n";
+        logEvent("SYSTEM", "Students saved to file");
     } catch (const FileException& e) {
         cout << "Error: " << e.what() << endl;
+        logEvent("ERROR", e.what());
+    }
+}
+
+void InternshipSystem::loadStaffFromFile() 
+{
+    try {
+        ifstream file("staff.txt");
+        if (!file.is_open()) {
+            throw FileException("Cannot open staff.txt for reading");
+        }
+
+        staffMembers.clear();
+        string line;
+        while (getline(file, line)) {
+            if (line.empty()) continue;
+
+            stringstream ss(line);
+            string id, name, email, department, position, password;
+            getline(ss, id, '|');
+            getline(ss, name, '|');
+            getline(ss, email, '|');
+            getline(ss, department, '|');
+            getline(ss, position, '|');
+            getline(ss, password, '|');
+
+            if (staffMembers.size() < MAX_STAFF) 
+            {
+                Staff* staff = new Staff(id, name, email, department, position, password);
+                staffMembers.push_back(staff);
+            }
+        }
+        file.close();
+        cout << "Loaded " << staffMembers.size() << " staff members from file.\n";
+        logEvent("SYSTEM", "Staff loaded from file");
+    } catch (const FileException& e) {
+        cout << "Error: " << e.what() << endl;
+        logEvent("ERROR", e.what());
+    }
+}
+
+void InternshipSystem::saveStaffToFile() 
+{
+    try {
+        ofstream file("staff.txt");
+        if (!file.is_open()) {
+            throw FileException("Cannot open staff.txt for writing");
+        }
+
+        for (size_t i = 0; i < staffMembers.size(); i++) 
+        {
+            ::saveStaffToFile(*staffMembers[i], file);  // Use global scope
+        }
+        file.close();
+        cout << "Saved " << staffMembers.size() << " staff members to file.\n";
+        logEvent("SYSTEM", "Staff saved to file");
+    } catch (const FileException& e) {
+        cout << "Error: " << e.what() << endl;
+        logEvent("ERROR", e.what());
+    }
+}
+
+void InternshipSystem::loadAdminsFromFile() 
+{
+    try {
+        ifstream file("admin_login.txt");
+        if (!file.is_open()) {
+            throw FileException("Cannot open admin_login.txt for reading");
+        }
+
+        admins.clear();
+        string line;
+        while (getline(file, line)) {
+            if (line.empty()) continue;
+
+            stringstream ss(line);
+            string id, name, email, password;
+            getline(ss, id, '|');
+            getline(ss, name, '|');
+            getline(ss, email, '|');
+            getline(ss, password, '|');
+
+            Admin* admin = new Admin(id, name, email, password);
+            admins.push_back(admin);
+        }
+        file.close();
+        cout << "Loaded " << admins.size() << " admins from file.\n";
+        logEvent("SYSTEM", "Admins loaded from file");
+    } catch (const FileException& e) {
+        cout << "Error: " << e.what() << endl;
+        logEvent("ERROR", e.what());
+    }
+}
+
+void InternshipSystem::saveAdminsToFile() 
+{
+    try {
+        ofstream file("admin_login.txt");
+        if (!file.is_open()) {
+            throw FileException("Cannot open admin_login.txt for writing");
+        }
+
+        for (size_t i = 0; i < admins.size(); i++) 
+        {
+            saveAdminToFile(*admins[i], file);
+        }
+        file.close();
+        cout << "Saved " << admins.size() << " admins to file.\n";
+        logEvent("SYSTEM", "Admins saved to file");
+    } catch (const FileException& e) {
+        cout << "Error: " << e.what() << endl;
+        logEvent("ERROR", e.what());
     }
 }
 
@@ -1125,7 +1511,7 @@ void InternshipSystem::loadJobsFromFile()
         jobs.clear();
         string line;
         while (getline(file, line)) 
-		{
+        {
             if (line.empty()) continue;
 
             stringstream ss(line);
@@ -1137,15 +1523,17 @@ void InternshipSystem::loadJobsFromFile()
             getline(ss, requirements, '|');
 
             if (jobs.size() < MAX_JOBS) 
-			{
+            {
                 InternshipJob* job = new InternshipJob(jobID, title, company, deadline, requirements);
                 jobs.push_back(job);
             }
         }
         file.close();
         cout << "Loaded " << jobs.size() << " jobs from file.\n";
+        logEvent("SYSTEM", "Jobs loaded from file");
     } catch (const FileException& e) {
         cout << "Error: " << e.what() << endl;
+        logEvent("ERROR", e.what());
     }
 }
 
@@ -1158,15 +1546,15 @@ void InternshipSystem::saveJobsToFile()
         }
 
         for (size_t i = 0; i < jobs.size(); i++) 
-		{
-    InternshipJob* job = jobs[i];
-            file << job->getJobID() << "|" << job->getTitle() << "|" << job->getCompany() << "|"
-                 << job->getDeadline() << "|" << job->getRequirements() << "|\n";
+        {
+            saveJobToFile(*jobs[i], file);
         }
         file.close();
         cout << "Saved " << jobs.size() << " jobs to file.\n";
+        logEvent("SYSTEM", "Jobs saved to file");
     } catch (const FileException& e) {
         cout << "Error: " << e.what() << endl;
+        logEvent("ERROR", e.what());
     }
 }
 
@@ -1175,8 +1563,10 @@ void InternshipSystem::loadApplicationsFromFile()
     try {
         applications->loadFromFile("applications.txt");
         cout << "Loaded " << applications->getCount() << " applications from file.\n";
+        logEvent("SYSTEM", "Applications loaded from file");
     } catch (const FileException& e) {
         cout << "Error: " << e.what() << endl;
+        logEvent("ERROR", e.what());
     }
 }
 
@@ -1185,8 +1575,10 @@ void InternshipSystem::saveApplicationsToFile()
     try {
         applications->saveToFile("applications.txt");
         cout << "Saved " << applications->getCount() << " applications to file.\n";
+        logEvent("SYSTEM", "Applications saved to file");
     } catch (const FileException& e) {
         cout << "Error: " << e.what() << endl;
+        logEvent("ERROR", e.what());
     }
 }
 
@@ -1198,40 +1590,51 @@ void InternshipSystem::mainMenu()
         cout << "\n=== Internship System Menu ===\n";
         cout << "1. Login as Student\n";
         cout << "2. Login as Admin\n";
-        cout << "3. Exit\n";
+        cout << "3. Login as Staff\n";
+        cout << "4. Exit\n";
         cout << "Enter choice: ";
         cin >> choice;
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
         switch (choice) 
-		{
+        {
             case 1: 
-			{
+            {
                 Student* student = new Student();
                 if (student->login()) 
-				{
+                {
                     studentMenu();
                 }
                 delete student;
                 break;
             }
             case 2: 
-			{
+            {
                 Admin* admin = new Admin();
                 if (admin->login()) 
-				{
+                {
                     adminMenu();
                 }
                 delete admin;
                 break;
             }
             case 3:
+            {
+                Staff* staff = new Staff();
+                if (staff->login()) 
+                {
+                    staffMenu();
+                }
+                delete staff;
+                break;
+            }
+            case 4:
                 cout << "Exiting system...\n";
                 break;
             default:
                 cout << "Invalid choice. Please try again.\n";
         }
-    } while (choice != 3);
+    } while (choice != 4);
 }
 
 void InternshipSystem::studentMenu() 
@@ -1239,23 +1642,22 @@ void InternshipSystem::studentMenu()
     int choice;
     Student* currentStudent = NULL;
     for (size_t i = 0; i < students.size(); i++) 
-	{
-    Student* student = students[i];
-        if (student->login()) 
-		{
-            currentStudent = student;
+    {
+        if (students[i]->login()) 
+        {
+            currentStudent = students[i];
             break;
         }
     }
 
     if (!currentStudent) 
-	{
+    {
         cout << "Student not found or login failed.\n";
         return;
     }
 
     do {
-        cout << "\n=== Student Menu ===\n";
+        cout << "\n=== Student Menu (" << currentStudent->getName() << ") ===\n";
         cout << "1. View Internships\n";
         cout << "2. Apply for Internship\n";
         cout << "3. View My Applications\n";
@@ -1267,7 +1669,7 @@ void InternshipSystem::studentMenu()
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
         switch (choice) 
-		{
+        {
             case 1: currentStudent->viewInternships(); break;
             case 2: currentStudent->applyForInternship(); break;
             case 3: currentStudent->viewMyApplications(); break;
@@ -1284,111 +1686,194 @@ void InternshipSystem::adminMenu()
     int choice;
     Admin* currentAdmin = NULL;
     for (size_t i = 0; i < admins.size(); i++) 
-	{
-    Admin* admin = admins[i];
-        if (admin->login()) 
-		{
-            currentAdmin = admin;
+    {
+        if (admins[i]->login()) 
+        {
+            currentAdmin = admins[i];
             break;
         }
     }
 
     if (!currentAdmin) 
-	{
+    {
         cout << "Admin not found or login failed.\n";
         return;
     }
 
     do {
-        cout << "\n=== Admin Menu ===\n";
+        cout << "\n=== Admin Menu (" << currentAdmin->getName() << ") ===\n";
         cout << "1. Manage Students\n";
         cout << "2. Manage Internships\n";
-        cout << "3. View All Applications\n";
-        cout << "4. Generate Reports\n";
-        cout << "5. Logout\n";
+        cout << "3. Manage Staff\n";
+        cout << "4. View All Applications\n";
+        cout << "5. Generate Reports\n";
+        cout << "6. Logout\n";
         cout << "Enter choice: ";
         cin >> choice;
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
         switch (choice) 
-		{
+        {
             case 1: currentAdmin->manageStudents(); break;
             case 2: currentAdmin->manageInternships(); break;
-            case 3: currentAdmin->viewAllApplications(); break;
-            case 4: currentAdmin->generateReports(); break;
-            case 5: cout << "Logging out...\n"; return;
+            case 3: currentAdmin->manageStaff(); break;
+            case 4: currentAdmin->viewAllApplications(); break;
+            case 5: currentAdmin->generateReports(); break;
+            case 6: cout << "Logging out...\n"; return;
             default: cout << "Invalid choice. Please try again.\n";
         }
     } while (true);
 }
 
-// Sorting algorithms (manually implemented)
+void InternshipSystem::staffMenu() 
+{
+    int choice;
+    Staff* currentStaff = NULL;
+    for (size_t i = 0; i < staffMembers.size(); i++) 
+    {
+        if (staffMembers[i]->login()) 
+        {
+            currentStaff = staffMembers[i];
+            break;
+        }
+    }
+
+    if (!currentStaff) 
+    {
+        cout << "Staff not found or login failed.\n";
+        return;
+    }
+
+    do {
+        cout << "\n=== Staff Menu (" << currentStaff->getName() << ") ===\n";
+        cout << "1. Process Applications\n";
+        cout << "2. Generate Department Report\n";
+        cout << "3. View Department Internships\n";
+        cout << "4. Logout\n";
+        cout << "Enter choice: ";
+        cin >> choice;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+        switch (choice) 
+        {
+            case 1: currentStaff->processApplications(); break;
+            case 2: currentStaff->generateDepartmentReport(); break;
+            case 3: 
+                cout << "\nInternships for " << currentStaff->getDepartment() << ":\n";
+                // Implementation would show department-specific internships
+                cout << "Department internship view under development...\n";
+                break;
+            case 4: cout << "Logging out...\n"; return;
+            default: cout << "Invalid choice. Please try again.\n";
+        }
+    } while (true);
+}
+
+// Sorting algorithms
 void InternshipSystem::selectionSortStudentsByCGPA() 
 {
     for (size_t i = 0; i < students.size() - 1; i++) 
-	{
+    {
         size_t minIndex = i;
         for (size_t j = i + 1; j < students.size(); j++) 
-		{
+        {
             if (students[j]->getCGPA() < students[minIndex]->getCGPA()) 
-			{
+            {
                 minIndex = j;
             }
         }
         if (minIndex != i) 
-		{
+        {
             Student* temp = students[i];
             students[i] = students[minIndex];
             students[minIndex] = temp;
         }
     }
     cout << "Students sorted by CGPA.\n";
+    logEvent("SYSTEM", "Students sorted by CGPA");
 }
 
 void InternshipSystem::selectionSortStudentsByID() 
 {
     for (size_t i = 0; i < students.size() - 1; i++) 
-	{
+    {
         size_t minIndex = i;
         for (size_t j = i + 1; j < students.size(); j++) 
-		{
+        {
             if (students[j]->getID() < students[minIndex]->getID()) 
-			{
+            {
                 minIndex = j;
             }
         }
-        if (minIndex != i) {
+        if (minIndex != i) 
+        {
             Student* temp = students[i];
             students[i] = students[minIndex];
             students[minIndex] = temp;
         }
     }
     cout << "Students sorted by ID.\n";
+    logEvent("SYSTEM", "Students sorted by ID");
 }
 
-void InternshipSystem::bubbleSortJobsByDeadline() 
+void InternshipSystem::mergeSortJobsByCompany(int low, int high) 
 {
-    for (size_t i = 0; i < jobs.size() - 1; i++) {
-        for (size_t j = 0; j < jobs.size() - i - 1; j++) 
-		{
-            // Simple string comparison for deadlines (assuming YYYY-MM-DD format)
-            if (jobs[j]->getDeadline() > jobs[j + 1]->getDeadline()) {
-                InternshipJob* temp = jobs[j];
-                jobs[j] = jobs[j + 1];
-                jobs[j + 1] = temp;
-            }
-        }
+    if (low < high) {
+        int mid = low + (high - low) / 2;
+        mergeSortJobsByCompany(low, mid);
+        mergeSortJobsByCompany(mid + 1, high);
+        mergeJobsByCompany(low, mid, high);
     }
-    cout << "Jobs sorted by deadline.\n";
 }
 
-// Searching algorithms (manually implemented)
+void InternshipSystem::mergeJobsByCompany(int low, int mid, int high) 
+{
+    int n1 = mid - low + 1;
+    int n2 = high - mid;
+
+    vector<InternshipJob*> left(n1), right(n2);
+
+    for (int i = 0; i < n1; i++)
+        left[i] = jobs[low + i];
+    for (int j = 0; j < n2; j++)
+        right[j] = jobs[mid + 1 + j];
+
+    int i = 0, j = 0, k = low;
+    while (i < n1 && j < n2) 
+	{
+        if (left[i]->getCompany() <= right[j]->getCompany()) 
+		{
+            jobs[k] = left[i];
+            i++;
+        } else {
+            jobs[k] = right[j];
+            j++;
+        }
+        k++;
+    }
+
+    while (i < n1) 
+	{
+        jobs[k] = left[i];
+        i++;
+        k++;
+    }
+
+    while (j < n2) 
+	{
+        jobs[k] = right[j];
+        j++;
+        k++;
+    }
+}
+
+// Searching algorithms
 int InternshipSystem::binarySearchStudentByID(string targetID) 
 {
     selectionSortStudentsByID(); // Ensure sorted array for binary search
     int left = 0, right = students.size() - 1;
     while (left <= right) 
-	{
+    {
         int mid = left + (right - left) / 2;
         if (students[mid]->getID() == targetID) return mid;
         if (students[mid]->getID() < targetID) left = mid + 1;
@@ -1397,141 +1882,82 @@ int InternshipSystem::binarySearchStudentByID(string targetID)
     return -1;
 }
 
-Student* InternshipSystem::hashSearchStudent(string studentID) 
+int InternshipSystem::linearSearchJobByTitle(string title) 
 {
-    return studentHash->search(studentID);
+    for (size_t i = 0; i < jobs.size(); i++) 
+    {
+        if (jobs[i]->getTitle().find(title) != string::npos) 
+		{
+            return i;
+        }
+    }
+    return -1;
 }
 
 // System management
-void InternshipSystem::registerStudent() 
+void InternshipSystem::registerStaff() 
 {
-    if (students.size() >= MAX_STUDENTS) 
-	{
-        cout << "Maximum student limit reached.\n";
+    if (staffMembers.size() >= MAX_STAFF) 
+    {
+        cout << "Maximum staff limit reached.\n";
         return;
     }
 
-    string id, name, email, diploma, skills;
-    float cgpa;
-    cout << "Enter Student ID: ";
+    string id, name, email, department, position, password;
+    cout << "Enter Staff ID: ";
     cin >> id;
     cin.ignore();
     cout << "Enter Name: ";
     getline(cin, name);
     cout << "Enter Email: ";
     getline(cin, email);
-    cout << "Enter CGPA: ";
-    cin >> cgpa;
-    cin.ignore();
-    cout << "Enter Diploma: ";
-    getline(cin, diploma);
-    cout << "Enter Skills: ";
-    getline(cin, skills);
-
-    Student* student = new Student(id, name, email, cgpa, diploma, skills);
-    students.push_back(student);
-    studentHash->insert(student);
-    saveStudentsToFile();
-    cout << "Student registered successfully.\n";
-}
-
-void InternshipSystem::registerAdmin() 
-{
-    if (admins.size() >= 10) 
-	{ // Arbitrary limit for admins
-        cout << "Maximum admin limit reached.\n";
-        return;
-    }
-
-    string id, name, email, password;
-    cout << "Enter Admin ID: ";
-    cin >> id;
-    cin.ignore();
-    cout << "Enter Name: ";
-    getline(cin, name);
-    cout << "Enter Email: ";
-    getline(cin, email);
+    cout << "Enter Department: ";
+    getline(cin, department);
+    cout << "Enter Position: ";
+    getline(cin, position);
     cout << "Enter Password: ";
     getline(cin, password);
 
-    Admin* admin = new Admin(id, name, email, password);
-    admins.push_back(admin);
+    // Encrypt password
+    string encrypted = encryptPassword(password);
 
-    // Save to admin_login.txt
-    ofstream file("admin_login.txt", ios::app);
-    if (file.is_open()) 
-	{
-        file << id << "," << password << "\n";
-        file.close();
-        cout << "Admin registered successfully.\n";
-    } else {
-        cout << "Error saving admin credentials.\n";
-    }
+    Staff* staff = new Staff(id, name, email, department, position, encrypted);
+    staffMembers.push_back(staff);
+    saveStaffToFile();
+    cout << "Staff registered successfully.\n";
+    logEvent("SYSTEM", "Staff registered: " + id);
 }
 
-void InternshipSystem::addInternshipJob() 
+void InternshipSystem::displayAllStaff() 
 {
-    if (jobs.size() >= MAX_JOBS) {
-        cout << "Maximum job limit reached.\n";
-        return;
-    }
-
-    string id, title, company, deadline, requirements;
-    cout << "Enter Job ID: ";
-    cin >> id;
-    cin.ignore();
-    cout << "Enter Title: ";
-    getline(cin, title);
-    cout << "Enter Company: ";
-    getline(cin, company);
-    cout << "Enter Deadline (YYYY-MM-DD): ";
-    getline(cin, deadline);
-    cout << "Enter Requirements: ";
-    getline(cin, requirements);
-
-    InternshipJob* job = new InternshipJob(id, title, company, deadline, requirements);
-    jobs.push_back(job);
-    saveJobsToFile();
-    cout << "Internship job added successfully.\n";
-}
-
-void InternshipSystem::displayAllStudents() 
-{
-    cout << "\n=== All Students ===\n";
-    for (size_t i = 0; i < students.size(); i++) 
-	{
-    Student* student = students[i];
-        student->displayInfo();
-        cout << "------------------------\n";
-    }
-}
-
-void InternshipSystem::displayAllJobs() 
-{
-    cout << "\n=== All Jobs ===\n";
-    for (size_t i = 0; i < jobs.size(); i++) 
-	{
-    InternshipJob* job = jobs[i];
-        job->display(true); // Show details
+    cout << "\n=== All Staff Members ===\n";
+    for (size_t i = 0; i < staffMembers.size(); i++) 
+    {
+        staffMembers[i]->displayInfo();
         cout << "------------------------\n";
     }
 }
 
 void InternshipSystem::displayStatistics() 
 {
-    cout << "\n=== System Statistics ===\n";
-    cout << "Total Students: " << students.size() << "\n";
-    cout << "Total Jobs: " << jobs.size() << "\n";
-    cout << "Total Applications: " << applications->getCount() << "\n";
-    cout << "Student Hash Table Load Factor: " << studentHash->getLoadFactor() << "\n";
+    cout << "\n=== System Statistics ===" << endl;
+    cout << "Total Students: " << students.size() << endl;
+    cout << "Total Admins: " << admins.size() << endl;
+    cout << "Total Staff: " << staffMembers.size() << endl;
+    cout << "Total Jobs: " << jobs.size() << endl;
+    cout << "Total Applications: " << applications->getCount() << endl;
+    cout << "Student Hash Table Load Factor: " << studentHash->getLoadFactor() << endl;
+    logEvent("SYSTEM", "Statistics viewed");
 }
 
 // Friend functions
 void saveSystemData(InternshipSystem& system) 
-{  // Remove 'const'
-    system.saveStudentsToFile();     // Now works
-    system.saveJobsToFile();         // Now works
-    system.saveApplicationsToFile(); // Now works
+{
+    system.saveStudentsToFile();
+    system.saveJobsToFile();
+    system.saveApplicationsToFile();
+    system.saveStaffToFile();
+    system.saveAdminsToFile();
 }
 
 void loadSystemData(InternshipSystem& system) 
@@ -1539,6 +1965,8 @@ void loadSystemData(InternshipSystem& system)
     system.loadStudentsFromFile();
     system.loadJobsFromFile();
     system.loadApplicationsFromFile();
+    system.loadStaffFromFile();
+    system.loadAdminsFromFile();
 }
 
 // Main function
