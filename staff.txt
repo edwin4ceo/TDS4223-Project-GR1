@@ -1,0 +1,4 @@
+# Format: staffID|name|email|department|role|password
+STF1001|Dr. Lim Wei Chen|lim.wc@mmu.edu.my|Career Services|Manager|pass123
+STF1002|Ms. Nor Azlina|nor.azlina@mmu.edu.my|IT Department|Coordinator|pwd456
+STF1003|Mr. Rajesh Kumar|rajesh.k@mmu.edu.my|Business Faculty|Advisor|secure789
