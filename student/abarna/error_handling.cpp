@@ -27,4 +27,3 @@ int getValidatedChoice(int min, int max) {
         }
     }
 }
-
