@@ -4,27 +4,12 @@
 #include <vector>
 #include <string>
 #include "../shared/student_structures.hpp"
+#include "../shared/student_utils.hpp"
 using namespace std;
 
 struct Internship {
     string jobID, jobTitle, company, deadline;
 };
-
-vector<string> splitLine(const string& line, char delimiter = '|') {
-    vector<string> tokens;
-    stringstream ss(line);
-    string token;
-    while (getline(ss, token, delimiter))
-        tokens.push_back(token);
-    return tokens;
-}
-
-string toLower(string str) {
-    for (int i = 0; i < str.length(); i++) {
-        str[i] = tolower(str[i]);
-    }
-    return str;
-}
 
 vector<Internship> loadInternships(const string& filename) {
     vector<Internship> internships;
@@ -47,6 +32,13 @@ vector<Internship> loadInternships(const string& filename) {
     }
     file.close();
     return internships;
+}
+
+string toLower(string str) {
+    for (int i = 0; i < str.length(); i++) {
+        str[i] = tolower(str[i]);
+    }
+    return str;
 }
 
 void searchInternships() {
@@ -80,3 +72,4 @@ void searchInternships() {
     if (!found)
         cout << "No matching internships found for: " << keyword << "\n";
 }
+

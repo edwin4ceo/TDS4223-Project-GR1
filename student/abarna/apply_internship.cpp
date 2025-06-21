@@ -4,21 +4,15 @@
 #include <string>
 #include <sstream>
 #include "../shared/student_structures.hpp"
+#include "../shared/student_utils.hpp"
 using namespace std;
 
+// Define Internship struct (used locally)
 struct Internship {
     string jobID, jobTitle, company, deadline;
 };
 
-vector<string> splitLine(const string& line, char delimiter = '|') {
-    vector<string> tokens;
-    stringstream ss(line);
-    string token;
-    while (getline(ss, token, delimiter))
-        tokens.push_back(token);
-    return tokens;
-}
-
+// Load internship listings
 vector<Internship> loadInternships(const string& filename) {
     vector<Internship> internships;
     ifstream file(filename.c_str());
@@ -26,6 +20,7 @@ vector<Internship> loadInternships(const string& filename) {
         cerr << "Error: Could not open job_listings.txt\n";
         return internships;
     }
+
     string line;
     while (getline(file, line)) {
         vector<string> parts = splitLine(line, '|');
@@ -38,10 +33,12 @@ vector<Internship> loadInternships(const string& filename) {
             internships.push_back(job);
         }
     }
+
     file.close();
     return internships;
 }
 
+// Save new application
 void saveApplication(const Application& app, const string& filename) {
     ofstream file(filename.c_str(), ios::app);
     if (!file) {
@@ -53,6 +50,7 @@ void saveApplication(const Application& app, const string& filename) {
     file.close();
 }
 
+// Main function for student to apply
 void applyInternship(const string& studentID) {
     vector<Internship> internships = loadInternships("../shared/job_listings.txt");
     if (internships.empty()) {
@@ -70,6 +68,7 @@ void applyInternship(const string& studentID) {
     int choice;
     cout << "\nEnter the number of the internship to apply for: ";
     cin >> choice;
+
     if (choice < 1 || choice > internships.size()) {
         cout << "Invalid choice.\n";
         return;
@@ -83,5 +82,7 @@ void applyInternship(const string& studentID) {
     app.status    = "Pending";
 
     saveApplication(app, "../shared/applications.txt");
-    cout << "\n✅ Application submitted successfully.\n";
+
+    cout << "\n? Application submitted successfully.\n";
 }
+

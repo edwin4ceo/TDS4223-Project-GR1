@@ -4,16 +4,8 @@
 #include <vector>
 #include <string>
 #include "../shared/student_structures.hpp"
+#include "../shared/student_utils.hpp"
 using namespace std;
-
-vector<string> splitLine(const string& line, char delimiter = ',') {
-    vector<string> tokens;
-    stringstream ss(line);
-    string token;
-    while (getline(ss, token, delimiter))
-        tokens.push_back(token);
-    return tokens;
-}
 
 void viewApplications(const string& studentID) {
     ifstream file("../shared/applications.txt");
@@ -27,7 +19,7 @@ void viewApplications(const string& studentID) {
     cout << "\nYour Internship Applications:\n"
          << "------------------------------------------\n";
     while (getline(file, line)) {
-        vector<string> parts = splitLine(line, ',');
+        vector<string> parts = splitLine(line, ',');  // override default '|'
         if (parts.size() >= 5 && parts[0] == studentID) {
             cout << "Job ID    : " << parts[1] << "\n"
                  << "Job Title : " << parts[2] << "\n"
@@ -41,3 +33,4 @@ void viewApplications(const string& studentID) {
         cout << "No applications found for Student ID: " << studentID << "\n";
     file.close();
 }
+
