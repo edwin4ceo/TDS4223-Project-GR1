@@ -7,33 +7,7 @@
 #include "../shared/student_utils.hpp"
 using namespace std;
 
-struct Internship {
-    string jobID, jobTitle, company, deadline;
-};
-
-vector<Internship> loadInternships(const string& filename) {
-    vector<Internship> internships;
-    ifstream file(filename.c_str());
-    if (!file) {
-        cerr << "Error: Could not open job_listings.txt\n";
-        return internships;
-    }
-    string line;
-    while (getline(file, line)) {
-        vector<string> parts = splitLine(line, '|');
-        if (parts.size() >= 4) {
-            Internship job;
-            job.jobID = parts[0];
-            job.jobTitle = parts[1];
-            job.company = parts[2];
-            job.deadline = parts[3];
-            internships.push_back(job);
-        }
-    }
-    file.close();
-    return internships;
-}
-
+// Lowercase converter
 string toLower(string str) {
     for (int i = 0; i < str.length(); i++) {
         str[i] = tolower(str[i]);
@@ -41,6 +15,7 @@ string toLower(string str) {
     return str;
 }
 
+// Search logic
 void searchInternships() {
     string keyword;
     cout << "Enter a keyword to search (job title or company): ";

@@ -7,37 +7,6 @@
 #include "../shared/student_utils.hpp"
 using namespace std;
 
-// Define Internship struct (used locally)
-struct Internship {
-    string jobID, jobTitle, company, deadline;
-};
-
-// Load internship listings
-vector<Internship> loadInternships(const string& filename) {
-    vector<Internship> internships;
-    ifstream file(filename.c_str());
-    if (!file) {
-        cerr << "Error: Could not open job_listings.txt\n";
-        return internships;
-    }
-
-    string line;
-    while (getline(file, line)) {
-        vector<string> parts = splitLine(line, '|');
-        if (parts.size() >= 4) {
-            Internship job;
-            job.jobID = parts[0];
-            job.jobTitle = parts[1];
-            job.company = parts[2];
-            job.deadline = parts[3];
-            internships.push_back(job);
-        }
-    }
-
-    file.close();
-    return internships;
-}
-
 // Save new application
 void saveApplication(const Application& app, const string& filename) {
     ofstream file(filename.c_str(), ios::app);
