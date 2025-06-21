@@ -1,0 +1,20 @@
+Name                 | Student ID  | Email                      | CGPA | Diploma    | Skills                                             | Applied Job                  
+---------------------|-------------|----------------------------|------|------------|----------------------------------------------------|------------------------------
+Aisyah Binti Rahman  | 1231203277  | aisyah.rahman@mmu.edu.my   | 3.70 | IT         | Java, HTML, Communication                          | Software Developer           
+Kevin Lim            | 1231203278  | kevin.lim@mmu.edu.my       | 2.85 | Business   | Marketing, Sales, Data Analysis                    | Marketing Assistant          
+Nurul Izzati         | 1231203279  | nurul.izzati@mmu.edu.my    | 3.80 | IT         | Graphic Design, Adobe Illustrator, HTML            | Graphic Designer             
+Arvind Raj           | 1231203280  | arvind.raj@mmu.edu.my      | 2.50 | Accounting | Financial Reporting, Excel, Auditing               | Accounting Intern            
+Sarah Wong           | 1231203281  | sarah.wong@mmu.edu.my      | 3.40 | Business   | Public Speaking, SEO, Business Management          | Business Analyst             
+Faizal Mohd          | 1231203282  | faizal.mohd@mmu.edu.my     | 3.05 | IT         | C++, MySQL, Network Security                       | Network Administrator        
+Michelle Tan         | 1231203283  | michelle.tan@mmu.edu.my    | 3.75 | IT         | UI/UX Design, Figma, HTML                          | UI/UX Designer               
+Daniel Lee           | 1231203284  | daniel.lee@mmu.edu.my      | 2.90 | Accounting | Bookkeeping, Tax Preparation, Excel                | Tax Assistant                
+Hema Letchumy        | 1231203285  | hema.letchumy@mmu.edu.my   | 3.20 | Business   | Project Management, Python, Agile                  | Project Coordinator          
+Amirul Hakim         | 1231203286  | amirul.hakim@mmu.edu.my    | 2.10 | IT         | Linux, Troubleshooting, Python                     | IT Support Technician        
+Lim Kai Jie          | 1231203287  | lim.kj@mmu.edu.my          | 3.00 | Accounting | Payroll Management, QuickBooks, Financial Analysis | Payroll Assistant         
+Rani Devi            | 1231203288  | rani.devi@mmu.edu.my       | 3.50 | Business   | Excel, Business Analysis, Communication            | Business Development Intern  
+John Goh             | 1231203289  | john.goh@mmu.edu.my        | 2.75 | IT         | Ruby on Rails, Web Development, GitHub             | Web Developer                
+Siti Noraini         | 1231203290  | siti.noraini@mmu.edu.my    | 3.60 | Business   | Content Writing, Canva, Social Media Marketing     | Social Media Coordinator     
+Thinesh Kumar        | 1231203291  | thinesh.kumar@mmu.edu.my   | 2.40 | IT         | Android Development, Java, SQLite                  | Mobile App Developer         
+Leong Wei Ming       | 1231203292  | leong.wei.ming@mmu.edu.my  | 3.35 | Accounting | C#, .NET, SQL                                      | Accounting Software Developer
+Maya Shanti          | 1231203293  | maya.shanti@mmu.edu.my     | 3.55 | Business   | Marketing, Social Media, SEO                       | Digital Marketing Executive  
+edwin ceo|1231203190|mone@gmail.com|3.98|IT|Java|Admin
