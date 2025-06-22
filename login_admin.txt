@@ -1,5 +1,5 @@
-admin1,password123
-admin2,securepass
-kenneth1,abc3522
-edwin,uj4pa
-abarna,muthu
+admin1|Admin One|admin1@mmu.edu.my|password123|
+admin2|Admin Two|admin2@mmu.edu.my|securepass|
+kenneth1|Kenneth|kenneth1@mmu.edu.my|abc3522|
+edwin|Edwin|edwin@mmu.edu.my|uj4pa|
+abarna|Abarna|abarna@mmu.edu.my|muthu|
