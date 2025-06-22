@@ -1181,10 +1181,10 @@ bool Admin::login()
         cout << "Enter Password: ";
         cin >> inputPassword;
 
-        ifstream file("login_admin.txt");
+        ifstream file("login_admin.txt"); // 
         if (!file.is_open()) 
         {
-            throw FileException("Cannot open login_admin.txt");
+            throw FileException("Cannot open login_admin.txt"); // 
         }
 
         string line;
@@ -1969,6 +1969,11 @@ void InternshipSystem::initializeSampleData()
     students[studentCount++] = new Student("1231203190", "edwin ceo", "mone@gmail.com", 3.98, "IT", "Java");
     students[studentCount++] = new Student("1231201130", "Riashini a/p Manoj Kumar", "riawee25@gmail.com", 3.7, "IT", "Java, HTML, PHP, C++, Python");
     
+    // ? Add sample admins to the system
+    admins[adminCount++] = new Admin("admin1", "Admin One", "admin1@mmu.edu.my", "password123");
+    admins[adminCount++] = new Admin("admin2", "Admin Two", "admin2@mmu.edu.my", "admin456");
+    admins[adminCount++] = new Admin("test", "Test Admin", "test@mmu.edu.my", "123456");
+    
     // Sample staff
     staffMembers[staffCount++] = new Staff("STF1001", "Dr. Lim Wei Chen", "lim.wc@mmu.edu.my", "Career Services", "Manager", "pass123");
     staffMembers[staffCount++] = new Staff("STF1002", "Ms. Nor Azlina", "nor.azlina@mmu.edu.my", "IT Department", "Coordinator", "pwd456");
@@ -2202,7 +2207,7 @@ void InternshipSystem::saveStudentsToFile()
         cout << "Saved " << studentCount << " students to file.\n";
         logEvent("SYSTEM", "Students saved to file");
         
-    } catch (const FileException& e) {  // ✅ Fix: Add proper catch block
+    } catch (const FileException& e) {  // ? Fix: Add proper catch block
         cout << "Error: " << e.what() << endl;
         logEvent("ERROR", e.what());
     }
@@ -2329,16 +2334,11 @@ void InternshipSystem::loadAdminsFromFile()
 
     try {
 
-        ifstream file("admin_login.txt");
-
+        ifstream file("login_admin.txt"); // 
         if (!file.is_open()) {
+            throw FileException("Cannot open login_admin.txt for reading"); // 
 
-            throw FileException("Cannot open login_admin.txt for reading");
-
-        }
-
-        //  admins.clear();
-        //  Clear array manually
+        // Clear array manually
         for (int i = 0; i < adminCount; i++) {
             delete admins[i];
             admins[i] = NULL;
@@ -2356,8 +2356,6 @@ void InternshipSystem::loadAdminsFromFile()
             getline(ss, email, '|');
             getline(ss, password, '|');
 
-            //  admins.push_back(admin);
-            //  Use array indexing
             admins[adminCount++] = new Admin(id, name, email, password);
         }
         file.close();
@@ -2376,10 +2374,9 @@ void InternshipSystem::saveAdminsToFile()
 {
 
     try {
-        ofstream file("admin_login.txt");
+        ofstream file("login_admin.txt"); // 
         if (!file.is_open()) {
-            throw FileException("Cannot open admin_login.txt for writing");
-        }
+            throw FileException("Cannot open login_admin.txt for writing"); // 
 
         for (int i = 0; i < adminCount; i++) {
             saveAdminToFile(*admins[i], file);
@@ -2473,7 +2470,7 @@ void InternshipSystem::saveJobsToFile()
             saveJobToFile(*jobs[i], file);
         }
         file.close();
-        //  cout << "Saved " << jobs.size() << " jobs to file.\n";
+        // cout << "Saved " << jobs.size() << " jobs to file.\n";
         // Fix to use jobCount
         cout << "Saved " << jobCount << " jobs to file.\n";
         logEvent("SYSTEM", "Jobs saved to file");
@@ -2748,8 +2745,8 @@ void InternshipSystem::selectionSortStudentsByCGPA()
         }
         if (maxIndex != i) {
             Student* temp = students[i];
-            students[i] = students[maxIndex];  // ✅ Fix this line
-            students[maxIndex] = temp;         // ✅ Fix this line
+            students[i] = students[maxIndex];  // ? Fix this line
+            students[maxIndex] = temp;         // ? Fix this line
         }
     }
     cout << "Students sorted by CGPA.\n";
@@ -2762,7 +2759,7 @@ void InternshipSystem::selectionSortStudentsByID()
         int minIndex = i;
         for (int j = i + 1; j < studentCount; j++) {
             if (students[j]->getID() < students[minIndex]->getID()) {
-                minIndex = j; // ✅ Fix: Move this inside the if statement
+                minIndex = j;
             }
         }
         if (minIndex != i) {
@@ -2771,7 +2768,6 @@ void InternshipSystem::selectionSortStudentsByID()
             students[minIndex] = temp;
         }
     }
-   
     cout << "Students sorted by ID.\n";
     logEvent("SYSTEM", "Students sorted by ID");
 }
@@ -2781,29 +2777,18 @@ void InternshipSystem::selectionSortStudentsByID()
 void InternshipSystem::bubbleSortJobsByDeadline() 
 
 {
-   
-
     for (int i = 0; i < jobCount - 1; i++) {
-
         for (int j = 0; j < jobCount - i - 1; j++) {
 
             if (jobs[j]->getDeadline() > jobs[j + 1]->getDeadline()) {
-
                 InternshipJob* temp = jobs[j];
-
                 jobs[j] = jobs[j + 1];
-
                 jobs[j + 1] = temp;
-
             }
-
         }
-
     }
-
     cout << "Jobs sorted by deadline using Bubble Sort.\n";
     logEvent("SYSTEM", "Jobs sorted by deadline");
-
 }
 
 
@@ -3235,7 +3220,7 @@ void InternshipSystem::generateDetailedReport()
         // Diploma distribution
         int itCount = 0, businessCount = 0, accountingCount = 0;
         for (int i = 0; i < studentCount; i++) {
-            string diploma = students[i]->getDiploma(); // ✅ Fix: Use students[i]->getDiploma()
+            string diploma = students[i]->getDiploma(); // ? Fix: Use students[i]->getDiploma()
             if (diploma == "IT") itCount++;
             else if (diploma == "Business") businessCount++;
             else if (diploma == "Accounting") accountingCount++;
@@ -3704,12 +3689,6 @@ void InternshipSystem::addInternshipJob()
     cout << "Enter Company: ";
     getline(cin, company);
     cout << "Enter Deadline (YYYY-MM-DD): ";
-    cin >> deadline;
-    cout << "Enter Requirements: ";
-    cin.ignore();
-    getline(cin, requirements);
-    
-    jobs[jobCount++] = new InternshipJob(jobID, title, company, deadline, requirements);
     cin >> deadline;
     cout << "Enter Requirements: ";
     cin.ignore();
