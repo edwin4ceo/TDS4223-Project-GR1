@@ -2333,10 +2333,10 @@ void InternshipSystem::loadAdminsFromFile()
 {
 
     try {
-
-        ifstream file("login_admin.txt"); // 
+        ifstream file("login_admin.txt");
         if (!file.is_open()) {
-            throw FileException("Cannot open login_admin.txt for reading"); // 
+            throw FileException("Cannot open login_admin.txt for reading");
+        }
 
         // Clear array manually
         for (int i = 0; i < adminCount; i++) {
