@@ -1181,10 +1181,10 @@ bool Admin::login()
         cout << "Enter Password: ";
         cin >> inputPassword;
 
-        ifstream file("admin_login.txt");
+        ifstream file("login_admin.txt"); // ✅ 修改这里：从 "admin_login.txt" 改为 "login_admin.txt"
         if (!file.is_open()) 
         {
-            throw FileException("Cannot open admin_login.txt");
+            throw FileException("Cannot open login_admin.txt"); // ✅ 修改这里的错误信息
         }
 
         string line;
@@ -2779,6 +2779,7 @@ void InternshipSystem::bubbleSortJobsByDeadline()
 {
     for (int i = 0; i < jobCount - 1; i++) {
         for (int j = 0; j < jobCount - i - 1; j++) {
+
             if (jobs[j]->getDeadline() > jobs[j + 1]->getDeadline()) {
                 InternshipJob* temp = jobs[j];
                 jobs[j] = jobs[j + 1];
