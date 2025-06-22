@@ -1,3 +1,4 @@
+// Fix the include statements - Remove STL headers
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -8,8 +9,6 @@
 #include <limits>
 #include <ctime>
 #include <cctype>
-#include <vector>
-#include <algorithm>
 #include <string>
 using namespace std;
 
@@ -329,10 +328,23 @@ private:
     string title;
     string company;
     string deadline;
+    string requirements;
+    bool isActive;
 
 public:
-    InternshipJob(string id, string t, string c, string d) : jobID(id), title(t), company(c), deadline(d) {}
+    // Fix constructor to match member variables
+    InternshipJob(string id, string t, string c, string d, string req = "") 
+        : jobID(id), title(t), company(c), deadline(d), requirements(req), isActive(true) {}
+    
     ~InternshipJob() {}
+
+    // Add missing getter for requirements
+    string getRequirements() const { return requirements; }
+    bool getIsActive() const { return isActive; }
+    
+    // Add missing setter
+    void setRequirements(string req) { requirements = req; }
+    void setIsActive(bool active) { isActive = active; }
 
     string getJobID() const { return jobID; }
     string getTitle() const { return title; }
@@ -345,22 +357,35 @@ public:
         cout << "Title: " << title << endl;
         cout << "Company: " << company << endl;
         cout << "Deadline: " << deadline << endl;
+        cout << "Requirements: " << requirements << endl;
+        cout << "Status: " << (isActive ? "Active" : "Inactive") << endl;
     }
 
     void updateProfile() {
         cout << "Updating job details for ID: " << jobID << endl;
-        string newTitle, newCompany, newDeadline;
+        string newTitle, newCompany, newDeadline, newRequirements;
         cout << "Enter new Title: ";
         getline(cin, newTitle);
         cout << "Enter new Company: ";
         getline(cin, newCompany);
         cout << "Enter new Deadline: ";
         getline(cin, newDeadline);
+        cout << "Enter new Requirements: ";
+        getline(cin, newRequirements);
+        
         if (!newTitle.empty()) title = newTitle;
         if (!newCompany.empty()) company = newCompany;
         if (!newDeadline.empty()) deadline = newDeadline;
+        if (!newRequirements.empty()) requirements = newRequirements;
         cout << "Job updated.\n";
     }
+
+    void display() {
+        cout << "Job ID: " << jobID << " | Title: " << title 
+             << " | Company: " << company << " | Deadline: " << deadline << endl;
+    }
+
+    friend void saveJobToFile(InternshipJob& job, ostream& file);
 };
 
 
@@ -393,6 +418,7 @@ private:
     InternshipJob* jobs[50];
     int jobCount;
     Staff* currentStaff;
+    Admin* currentAdmin;  // Add this member variable
 
     // Replace with raw arrays
     Student* students[MAX_STUDENTS];
@@ -486,6 +512,12 @@ public:
     void insertionSortStudentsByName();
     void bubbleSortJobsByTitle();
 
+    friend class Admin;
+    friend class Staff;
+    friend void saveStudentToFile(Student& student, ostream& file);
+    friend void saveAdminToFile(Admin& admin, ostream& file);
+    friend void saveStaffToFile(Staff& staff, ostream& file);
+    friend void saveJobToFile(InternshipJob& job, ostream& file);
     friend void saveSystemData(InternshipSystem& system);
     friend void loadSystemData(InternshipSystem& system);
 
@@ -1149,32 +1181,31 @@ bool Admin::login()
         cout << "Enter Password: ";
         cin >> inputPassword;
 
-
-        ifstream file("login_admin.txt");
+        ifstream file("admin_login.txt");
         if (!file.is_open()) 
         {
-            throw FileException("Cannot open login_admin.txt");
+            throw FileException("Cannot open admin_login.txt");
         }
 
-        
         string line;
         while (getline(file, line)) 
         {
-            size_t delim = line.find(',');
-            if (delim != string::npos) 
+            stringstream ss(line);
+            string storedID, storedName, storedEmail, storedPassword;
+            
+            // Parse using pipe delimiter
+            getline(ss, storedID, '|');
+            getline(ss, storedName, '|');
+            getline(ss, storedEmail, '|');
+            getline(ss, storedPassword, '|');
+            
+            if (inputID == storedID && inputPassword == storedPassword) 
             {
-                string storedID = line.substr(0, delim);
-                string storedPassword = line.substr(delim + 1);
-                
-                if (inputID == storedID && inputPassword == storedPassword) 
-                {
-                    file.close();
-                    id = inputID;
-                    name = "Admin_" + inputID; // Assume name is derived (adjust if stored)
-                    email = inputID + "@admin.com"; // Placeholder email
-                    role = "Admin";
-                    return true;
-                }
+                file.close();
+                id = inputID;
+                name = storedName;
+                email = storedEmail;
+                return true;
             }
         }
         file.close();
@@ -1200,71 +1231,28 @@ void Admin::manageStudents(InternshipSystem* system)
     cin >> choice;
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-    std::vector<Student> studentList;
-
-    // Load students from file
-    ifstream file("students.txt");
-    string line;
-    while (getline(file, line)) {
-        if (line.empty()) continue;
-        stringstream ss(line);
-        string id, name, email, cgpaStr, diploma, skills;
-        getline(ss, id, '|');
-        getline(ss, name, '|');
-        getline(ss, email, '|');
-        getline(ss, cgpaStr, '|');
-        getline(ss, diploma, '|');
-        getline(ss, skills, '|');
-        float cgpa = 0.0;
-        std::stringstream ss2;
-        ss >> cgpa;
-        Student s(id, name, email, cgpa, diploma, skills);
-        studentList.push_back(s);
-    }
-    file.close();
+    // std::vector<Student> studentList;
+    // Use system's existing student array instead
 
     if (choice == 1) {
         cout << "\n=== Student List ===\n";
-        for (size_t i = 0; i < studentList.size(); ++i) {
-            studentList[i].displayInfo();
-}
+        for (int i = 0; i < system->studentCount; i++) {
+            system->students[i]->displayInfo();
             cout << "----------------------\n";
         }
-
+    }
     else if (choice == 2) {
-        string id, name, email, diploma, skills;
-        float cgpa;
-        cout << "Enter Student ID: ";
-        getline(cin, id);
-        cout << "Enter Name: ";
-        getline(cin, name);
-        cout << "Enter Email: ";
-        getline(cin, email);
-        cout << "Enter CGPA: ";
-        cin >> cgpa; cin.ignore();
-        cout << "Enter Diploma: ";
-        getline(cin, diploma);
-        cout << "Enter Skills: ";
-        getline(cin, skills);
-        if (id.empty() || !system->validateEmail(email) || cgpa < 0.0 || cgpa > 4.0) 
-		{
-            cout << "Invalid input data.\n";
-            return;
-        }
-
-        Student newStudent(id, name, email, cgpa, diploma, skills);
-        studentList.push_back(newStudent);
-        cout << "Student added.\n";
+        system->registerStudent(); // Use system's method
     }
     else if (choice == 3) {
         string editID;
         cout << "Enter Student ID to edit: ";
         getline(cin, editID);
         bool found = false;
-        for (size_t i = 0; i < studentList.size(); ++i) {
-            if (studentList[i].getID() == editID) {
-                cout << "Editing student: " << studentList[i].getName() << endl;
-                studentList[i].updateProfile();  // calls the interactive update version
+        for (int i = 0; i < system->studentCount; i++) {
+            if (system->students[i]->getID() == editID) {
+                cout << "Editing student: " << system->students[i]->getName() << endl;
+                system->students[i]->updateProfile();
                 found = true;
                 break;
             }
@@ -1272,20 +1260,23 @@ void Admin::manageStudents(InternshipSystem* system)
         if (!found) {
             cout << "Student ID not found.\n";
         }
-        
-        } else if (choice == 4) {
+    } 
+    else if (choice == 4) {
         string deleteID;
         cout << "Enter Student ID to delete: ";
         getline(cin, deleteID);
         bool found = false;
-        for (vector<Student>::iterator it = studentList.begin(); it != studentList.end(); ++it) {
-            if (it->getID() == deleteID) {
-                studentList.erase(it);
+        for (int i = 0; i < system->studentCount; i++) {
+            if (system->students[i]->getID() == deleteID) {
+                delete system->students[i];
+                // Shift remaining elements
+                for (int j = i; j < system->studentCount - 1; j++) {
+                    system->students[j] = system->students[j + 1];
+                }
+                system->studentCount--;
                 found = true;
                 cout << "Student deleted.\n";
                 break;
-            } else {
-                ++it;
             }
         }
         if (!found) {
@@ -1293,20 +1284,6 @@ void Admin::manageStudents(InternshipSystem* system)
         }
     } else {
         cout << "Invalid choice.\n";
-    }
-
-    // Save updated list back to students.txt
-    ofstream outFile("students.txt");
-    if (outFile.is_open()) {
-        for (size_t i = 0; i < studentList.size(); ++i) {
-            outFile << studentList[i].getID() << "|" << studentList[i].getName() << "|"
-                    << studentList[i].getEmail() << "|" << fixed << setprecision(2)
-                    << studentList[i].getCGPA() << "|" << studentList[i].getDiploma() << "|"
-                    << studentList[i].getSkills() << "|\n";
-        }
-        outFile.close();
-    } else {
-        cout << "Error: Cannot save students.txt\n";
     }
 }
 
@@ -1323,56 +1300,36 @@ void Admin::manageInternships(InternshipSystem* system)
     cin >> choice;
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-    vector<InternshipJob*> jobList;
-    for (int i = 0; i < system->getJobCount(); i++) {
-        jobList.push_back(system->getJob(i));
-    }
+    // vector<InternshipJob*> jobList;
+    // Use system's existing job array
 
     if (choice == 1) {
         cout << "\n=== Job List ===\n";
-        for (size_t i = 0; i < jobList.size(); ++i) {
-            if (jobList[i]) jobList[i]->displayInfo(); // Line 1339 is here
+        for (int i = 0; i < system->jobCount; i++) {
+            if (system->jobs[i]) system->jobs[i]->displayInfo();
             cout << "----------------------\n";
         }
     } else if (choice == 2) {
-        string id, title, company, deadline;
-        cout << "Enter Job ID: ";
-        getline(cin, id);
-        cout << "Enter Title: ";
-        getline(cin, title);
-        cout << "Enter Company: ";
-        getline(cin, company);
-        cout << "Enter Deadline: ";
-        getline(cin, deadline);
-        InternshipJob* newJob = new InternshipJob(id, title, company, deadline);
-        if (system->getJobCount() < 50) {
-            system->jobs[system->getJobCount()] = newJob;
-            system->jobCount++;
-            cout << "Job added.\n";
-        } else {
-            cout << "Job limit reached.\n";
-            delete newJob;
-        }
+        system->addInternshipJob(); // Use system's method
     } else if (choice == 3) {
         string editID;
         cout << "Enter Job ID to edit: ";
         getline(cin, editID);
-        for (int i = 0; i < system->getJobCount(); i++) {
-            if (jobList[i] && jobList[i]->getJobID() == editID) {
-                cout << "Editing job: " << jobList[i]->getTitle() << endl;
-                jobList[i]->updateProfile(); // Placeholder
+        for (int i = 0; i < system->jobCount; i++) {
+            if (system->jobs[i] && system->jobs[i]->getJobID() == editID) {
+                cout << "Editing job: " << system->jobs[i]->getTitle() << endl;
+                system->jobs[i]->updateProfile();
                 break;
             }
         }
-        cout << "Job ID not found.\n";
     } else if (choice == 4) {
         string deleteID;
         cout << "Enter Job ID to delete: ";
         getline(cin, deleteID);
-        for (int i = 0; i < system->getJobCount(); i++) {
-            if (jobList[i] && jobList[i]->getJobID() == deleteID) {
-                delete jobList[i];
-                for (int j = i; j < system->getJobCount() - 1; j++) {
+        for (int i = 0; i < system->jobCount; i++) {
+            if (system->jobs[i] && system->jobs[i]->getJobID() == deleteID) {
+                delete system->jobs[i];
+                for (int j = i; j < system->jobCount - 1; j++) {
                     system->jobs[j] = system->jobs[j + 1];
                 }
                 system->jobCount--;
@@ -1380,7 +1337,6 @@ void Admin::manageInternships(InternshipSystem* system)
                 break;
             }
         }
-        cout << "Job ID not found.\n";
     } else {
         cout << "Invalid choice.\n";
     }
@@ -1398,58 +1354,35 @@ void Admin::manageStaff(InternshipSystem* system)
     cin >> choice;
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-    vector<Staff*> staffList;
-    for (int i = 0; i < system->staffCount; i++) {
-        staffList.push_back(system->staffMembers[i]);
-    }
+    // vector<Staff*> staffList;
+    // Use system's existing staff array
 
     if (choice == 1) {
         cout << "\n=== Staff List ===\n";
-        for (size_t i = 0; i < staffList.size(); ++i) {
-            if (staffList[i]) staffList[i]->displayInfo();
+        for (int i = 0; i < system->staffCount; i++) {
+            if (system->staffMembers[i]) system->staffMembers[i]->displayInfo();
             cout << "----------------------\n";
         }
     } else if (choice == 2) {
-        string id, name, email, dept, pos, pwd;
-        cout << "Enter Staff ID: ";
-        getline(cin, id);
-        cout << "Enter Name: ";
-        getline(cin, name);
-        cout << "Enter Email: ";
-        getline(cin, email);
-        cout << "Enter Department: ";
-        getline(cin, dept);
-        cout << "Enter Position: ";
-        getline(cin, pos);
-        cout << "Enter Password: ";
-        getline(cin, pwd);
-        Staff* newStaff = new Staff(id, name, email, dept, pos, pwd);
-        if (system->staffCount < MAX_STAFF) {
-            system->staffMembers[system->staffCount++] = newStaff;
-            cout << "Staff added.\n";
-        } else {
-            cout << "Staff limit reached.\n";
-            delete newStaff;
-        }
+        system->registerStaff(); // Use system's method
     } else if (choice == 3) {
         string editID;
         cout << "Enter Staff ID to edit: ";
         getline(cin, editID);
         for (int i = 0; i < system->staffCount; i++) {
-            if (staffList[i] && staffList[i]->getID() == editID) {
-                cout << "Editing staff: " << staffList[i]->getName() << endl;
-                staffList[i]->updateProfile(); // Placeholder
+            if (system->staffMembers[i] && system->staffMembers[i]->getID() == editID) {
+                cout << "Editing staff: " << system->staffMembers[i]->getName() << endl;
+                // Add staff update method here
                 break;
             }
         }
-        cout << "Staff ID not found.\n";
     } else if (choice == 4) {
         string deleteID;
         cout << "Enter Staff ID to delete: ";
         getline(cin, deleteID);
         for (int i = 0; i < system->staffCount; i++) {
-            if (staffList[i] && staffList[i]->getID() == deleteID) {
-                delete staffList[i];
+            if (system->staffMembers[i] && system->staffMembers[i]->getID() == deleteID) {
+                delete system->staffMembers[i];
                 for (int j = i; j < system->staffCount - 1; j++) {
                     system->staffMembers[j] = system->staffMembers[j + 1];
                 }
@@ -1458,7 +1391,6 @@ void Admin::manageStaff(InternshipSystem* system)
                 break;
             }
         }
-        cout << "Staff ID not found.\n";
     } else {
         cout << "Invalid choice.\n";
     }
@@ -1607,7 +1539,11 @@ void Staff::processApplications(InternshipSystem* system)
              << setw(12) << "Status" << endl;
         cout << string(77, '-') << endl;
 
-        vector<string> linesToUpdate;
+        //vector<string> linesToUpdate;
+        // Use raw array instead
+        string linesToUpdate[200]; // Max applications
+        int updateCount = 0;
+        
         string line;
         while (getline(file, line)) {
             stringstream ss(line);
@@ -1631,34 +1567,24 @@ void Staff::processApplications(InternshipSystem* system)
                 if (choice == 1) status = "Approved";
                 else if (choice == 2) status = "Rejected";
                 if (choice == 1 || choice == 2) {
-                    linesToUpdate.push_back(studentID + "|" + jobID + "|" + jobTitle + "|" + company + "|" + status);
+                    // linesToUpdate.push_back(...)
+                    // se array indexing
+                    linesToUpdate[updateCount++] = studentID + "|" + jobID + "|" + jobTitle + "|" + company + "|" + status;
                 }
             }
         }
         file.close();
 
-        if (!linesToUpdate.empty()) {
+        if (updateCount > 0) {
+            // Update file logic using array instead of vector
             ofstream outFile("applications.txt");
             if (!outFile.is_open()) {
                 throw FileException("Cannot open applications.txt for writing");
             }
-            ifstream tempFile("applications.txt");
-            while (getline(tempFile, line)) {
-                stringstream ss(line);
-                string studentID, jobID;
-                getline(ss, studentID, '|');
-                getline(ss, jobID, '|');
-                bool updated = false;
-                for (size_t i = 0; i < linesToUpdate.size(); ++i) { // Traditional for loop
-                    if (linesToUpdate[i].find(studentID + "|" + jobID) == 0) {
-                        outFile << linesToUpdate[i] << endl;
-                        updated = true;
-                        break;
-                    }
-                }
-                if (!updated) outFile << line << endl;
+            
+            for (int i = 0; i < updateCount; i++) {
+                outFile << linesToUpdate[i] << endl;
             }
-            tempFile.close();
             outFile.close();
             cout << "Application statuses updated!\n";
         } else {
@@ -1729,55 +1655,6 @@ void Staff::viewDepartmentInternships(InternshipSystem* system)
         cout << "\nTotal internships found: " << count << endl;
     }
 }
-
-// Implementation of InternshipJob methods
-void InternshipJob::display()
-{
-    cout << "Job ID: " << jobID << " | Title: " << title 
-         << " | Company: " << company << " | Deadline: " << deadline << endl;
-
-}
-
-
-void InternshipJob::display(bool showDetails) 
-{
-    display();
-    if (showDetails) 
-    {
-        cout << "Requirements: " << requirements << endl;
-        cout << "Status: " << (isActive ? "Active" : "Inactive") << endl;
-    }
-}
-
-
-
-void InternshipJob::display(string format) 
-{
-    if (format == "CSV") 
-    {
-        cout << jobID << "," << title << "," << company << "," << deadline << endl;
-    } else {
-        display();
-    }
-}
-
-
-
-void InternshipJob::display(bool showDetails, string format) 
-{
-    if (format == "CSV") 
-    {
-        display(format);
-        if (showDetails) 
-        {
-            cout << "," << requirements << "," << (isActive ? "Active" : "Inactive") << endl;
-        }
-    } else {
-        display(showDetails);
-    }
-}
-
-
 
 // Implementation of StudentHashTable methods
 StudentHashTable::StudentHashTable(int size) : size(size), count(0) 
@@ -2008,6 +1885,14 @@ InternshipSystem::InternshipSystem()
 
     
 
+    // Initialize pointers
+
+    currentStaff = NULL;
+
+    currentAdmin = NULL;  // Initialize this
+
+    
+
     applications = new ApplicationList();
 
     studentHash = new StudentHashTable();
@@ -2060,6 +1945,7 @@ InternshipSystem::~InternshipSystem()
 
 
 
+// Fix sample job creation in initializeSampleData()
 void InternshipSystem::initializeSampleData() 
 {
     // Sample students - using array indexing instead of push_back
@@ -2088,7 +1974,7 @@ void InternshipSystem::initializeSampleData()
     staffMembers[staffCount++] = new Staff("STF1002", "Ms. Nor Azlina", "nor.azlina@mmu.edu.my", "IT Department", "Coordinator", "pwd456");
     staffMembers[staffCount++] = new Staff("STF1003", "Mr. Rajesh Kumar", "rajesh.k@mmu.edu.my", "Business Faculty", "Advisor", "secure789");
     
-    // Sample jobs
+    // Sample jobs - Add requirements parameter
     jobs[jobCount++] = new InternshipJob("JOB1001", "Software Developer Intern", "Tech Solutions Sdn Bhd", "2023-12-15", "C++, Python, Problem Solving");
     jobs[jobCount++] = new InternshipJob("JOB1002", "Marketing Intern", "Global Marketing Group", "2023-11-30", "Communication, Creativity, Social Media");
     jobs[jobCount++] = new InternshipJob("JOB1003", "Finance Intern", "Capital Investments Berhad", "2024-01-10", "Accounting, Excel, Analytical Skills");
@@ -2305,11 +2191,8 @@ void InternshipSystem::saveStudentsToFile()
 {
     try {
         ofstream file("students.txt");
-
         if (!file.is_open()) {
-
             throw FileException("Cannot open students.txt for writing");
-
         }
 
         for (int i = 0; i < studentCount; i++) {
@@ -2318,16 +2201,12 @@ void InternshipSystem::saveStudentsToFile()
         file.close();
         cout << "Saved " << studentCount << " students to file.\n";
         logEvent("SYSTEM", "Students saved to file");
-    } catch (const FileException& e) {
-
+        
+    } catch (const FileException& e) {  // ✅ Fix: Add proper catch block
         cout << "Error: " << e.what() << endl;
-
         logEvent("ERROR", e.what());
-
     }
-
 }
-
 
 
 void InternshipSystem::loadStaffFromFile() 
@@ -2450,7 +2329,7 @@ void InternshipSystem::loadAdminsFromFile()
 
     try {
 
-        ifstream file("login_admin.txt");
+        ifstream file("admin_login.txt");
 
         if (!file.is_open()) {
 
@@ -2502,16 +2381,13 @@ void InternshipSystem::saveAdminsToFile()
             throw FileException("Cannot open admin_login.txt for writing");
         }
 
-        //  for (size_t i = 0; i < admins.size(); i++) 
-        // Fix to use adminCount
         for (int i = 0; i < adminCount; i++) {
             saveAdminToFile(*admins[i], file);
         }
         file.close();
-        //  cout << "Saved " << admins.size() << " admins to file.\n";
-        //  Fix to use adminCount
         cout << "Saved " << adminCount << " admins to file.\n";
         logEvent("SYSTEM", "Admins saved to file");
+        
     } catch (const FileException& e) {
         cout << "Error: " << e.what() << endl;
         logEvent("ERROR", e.what());
@@ -2614,21 +2490,13 @@ void InternshipSystem::loadApplicationsFromFile()
 {
 
     try {
-
         applications->loadFromFile("applications.txt");
-
         cout << "Loaded " << applications->getCount() << " applications from file.\n";
-
         logEvent("SYSTEM", "Applications loaded from file");
-
     } catch (const FileException& e) {
-
         cout << "Error: " << e.what() << endl;
-
         logEvent("ERROR", e.what());
-
     }
-
 }
 
 
@@ -2658,7 +2526,6 @@ void InternshipSystem::saveApplicationsToFile()
 
 
 // System operations
-
 void InternshipSystem::mainMenu() 
 {
     int choice;
@@ -2794,58 +2661,42 @@ void InternshipSystem::studentMenu()
     } while (true);
 }
 
-// Apply same fix to adminMenu and staffMenu
+// Fix adminMenu function
 void InternshipSystem::adminMenu() 
-
 {
-
+    Admin* currentAdmin = new Admin(); // Create local admin object
+    
     int choice;
-    // Student already authenticated, just show menu
     do {
         cout << "\n=== Admin Menu ===\n";
         cout << "1. Manage Students\n";
         cout << "2. Manage Internships\n";
-        cout << "3. Manage Staff\n";
-        cout << "4. View All Applications\n";
-        cout << "5. Generate Reports\n";
-        cout << "6. Logout\n";
+        cout << "3. View All Applications\n";
+        cout << "4. Generate Reports\n";
+        cout << "5. Logout\n";
         cout << "Enter choice: ";
         cin >> choice;
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
         switch (choice) {
-            case 1: 
-            {
-                Admin tempAdmin;
-                tempAdmin.manageStudents();
+            case 1:
+                currentAdmin->manageStudents(this);
                 break;
-            }
-            case 2: 
-            {
-                Admin tempAdmin;
-                tempAdmin.manageInternships();
+            case 2:
+                currentAdmin->manageInternships(this);
                 break;
-            }
-            case 3: 
-            {
-                Admin tempAdmin;
-                tempAdmin.manageStaff();
+            case 3:
+                currentAdmin->viewAllApplications();
                 break;
-            }
-            case 4: 
-            {
-                Admin tempAdmin;
-                tempAdmin.viewAllApplications();
+            case 4:
+                currentAdmin->generateReports();
                 break;
-            }
-            case 5: 
-            {
-                Admin tempAdmin;
-                tempAdmin.generateReports();
-                break;
-            }
-            case 6: cout << "Logging out...\n"; return;
-            default: cout << "Invalid choice. Please try again.\n";
+            case 5:
+                cout << "Logging out...\n";
+                delete currentAdmin; // Clean up
+                return;
+            default:
+                cout << "Invalid choice. Please try again.\n";
         }
     } while (true);
 }
@@ -2897,8 +2748,8 @@ void InternshipSystem::selectionSortStudentsByCGPA()
         }
         if (maxIndex != i) {
             Student* temp = students[i];
-            students[i] = students[maxIndex];
-            students[maxIndex] = temp;
+            students[i] = students[maxIndex];  // ✅ Fix this line
+            students[maxIndex] = temp;         // ✅ Fix this line
         }
     }
     cout << "Students sorted by CGPA.\n";
@@ -2911,7 +2762,7 @@ void InternshipSystem::selectionSortStudentsByID()
         int minIndex = i;
         for (int j = i + 1; j < studentCount; j++) {
             if (students[j]->getID() < students[minIndex]->getID()) {
-                minIndex = j;
+                minIndex = j; // ✅ Fix: Move this inside the if statement
             }
         }
         if (minIndex != i) {
@@ -2920,6 +2771,7 @@ void InternshipSystem::selectionSortStudentsByID()
             students[minIndex] = temp;
         }
     }
+   
     cout << "Students sorted by ID.\n";
     logEvent("SYSTEM", "Students sorted by ID");
 }
@@ -2929,6 +2781,7 @@ void InternshipSystem::selectionSortStudentsByID()
 void InternshipSystem::bubbleSortJobsByDeadline() 
 
 {
+   
 
     for (int i = 0; i < jobCount - 1; i++) {
 
@@ -2949,7 +2802,6 @@ void InternshipSystem::bubbleSortJobsByDeadline()
     }
 
     cout << "Jobs sorted by deadline using Bubble Sort.\n";
-
     logEvent("SYSTEM", "Jobs sorted by deadline");
 
 }
@@ -2965,13 +2817,9 @@ void InternshipSystem::mergeSortJobsByCompany(int low, int high)
         int mid = low + (high - low) / 2;
 
         mergeSortJobsByCompany(low, mid);
-
         mergeSortJobsByCompany(mid + 1, high);
-
         mergeJobsByCompany(low, mid, high);
-
     }
-
 }
 
 
@@ -3378,30 +3226,32 @@ void InternshipSystem::generateDetailedReport()
             if (cgpa < lowestCGPA) lowestCGPA = cgpa;
         }
         
-        report << "Average CGPA: " << fixed << setprecision(2) << (totalCGPA / studentCount) << endl;
-        report << "Highest CGPA: " << highestCGPA << endl;
-        report << "Lowest CGPA: " << lowestCGPA << endl;
+        if (studentCount > 0) {
+            report << "Average CGPA: " << fixed << setprecision(2) << (totalCGPA / studentCount) << endl;
+            report << "Highest CGPA: " << highestCGPA << endl;
+            report << "Lowest CGPA: " << lowestCGPA << endl;
+        }
         
         // Diploma distribution
         int itCount = 0, businessCount = 0, accountingCount = 0;
         for (int i = 0; i < studentCount; i++) {
-            string diploma = students[i]->getDiploma();
+            string diploma = students[i]->getDiploma(); // ✅ Fix: Use students[i]->getDiploma()
             if (diploma == "IT") itCount++;
             else if (diploma == "Business") businessCount++;
             else if (diploma == "Accounting") accountingCount++;
         }
         
         report << "\n--- DIPLOMA DISTRIBUTION ---" << endl;
-        report << "IT Students: " << itCount << " (" << (itCount * 100.0 / studentCount) << "%)" << endl;
-        report << "Business Students: " << businessCount << " (" << (businessCount * 100.0 / studentCount) << "%)" << endl;
-        report << "Accounting Students: " << accountingCount << " (" << (accountingCount * 100.0 / studentCount) << "%)" << endl;
+        if (studentCount > 0) {
+            report << "IT Students: " << itCount << " (" << (itCount * 100.0 / studentCount) << "%)" << endl;
+            report << "Business Students: " << businessCount << " (" << (businessCount * 100.0 / studentCount) << "%)" << endl;
+            report << "Accounting Students: " << accountingCount << " (" << (accountingCount * 100.0 / studentCount) << "%)" << endl;
+        }
         
         // Job statistics
         report << "\n--- JOB STATISTICS ---" << endl;
         report << "Total Jobs Available: " << jobCount << endl;
         report << "Total Applications: " << applications->getCount() << endl;
-        
-        // Application success rate analysis would go here
         
         report.close();
         cout << "Detailed report generated: " << reportFile << endl;
@@ -3860,6 +3710,12 @@ void InternshipSystem::addInternshipJob()
     getline(cin, requirements);
     
     jobs[jobCount++] = new InternshipJob(jobID, title, company, deadline, requirements);
+    cin >> deadline;
+    cout << "Enter Requirements: ";
+    cin.ignore();
+    getline(cin, requirements);
+    
+    jobs[jobCount++] = new InternshipJob(jobID, title, company, deadline, requirements);
     cout << "Job added successfully!" << endl;
     logEvent("SYSTEM", "New job added: " + jobID);
 }
@@ -3905,7 +3761,6 @@ void InternshipSystem::displayStatistics()
     cout << "Total Staff: " << staffCount << endl;
     cout << "Total Applications: " << applications->getCount() << endl;
 }
-
 int main() 
 {
     try {
