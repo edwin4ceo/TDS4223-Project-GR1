@@ -1181,10 +1181,10 @@ bool Admin::login()
         cout << "Enter Password: ";
         cin >> inputPassword;
 
-        ifstream file("login_admin.txt"); 
+        ifstream file("admin_login.txt");
         if (!file.is_open()) 
         {
-            throw FileException("Cannot open login_admin.txt"); 
+            throw FileException("Cannot open admin_login.txt");
         }
 
         string line;
