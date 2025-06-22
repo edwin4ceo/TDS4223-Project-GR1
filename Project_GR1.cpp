@@ -1181,10 +1181,10 @@ bool Admin::login()
         cout << "Enter Password: ";
         cin >> inputPassword;
 
-        ifstream file("admin_login.txt");
+        ifstream file("login_admin.txt"); 
         if (!file.is_open()) 
         {
-            throw FileException("Cannot open admin_login.txt");
+            throw FileException("Cannot open login_admin.txt"); 
         }
 
         string line;
@@ -2329,16 +2329,11 @@ void InternshipSystem::loadAdminsFromFile()
 
     try {
 
-        ifstream file("admin_login.txt");
-
+        ifstream file("login_admin.txt"); // 
         if (!file.is_open()) {
+            throw FileException("Cannot open login_admin.txt for reading"); // 
 
-            throw FileException("Cannot open login_admin.txt for reading");
-
-        }
-
-        //  admins.clear();
-        //  Clear array manually
+        // Clear array manually
         for (int i = 0; i < adminCount; i++) {
             delete admins[i];
             admins[i] = NULL;
@@ -2356,8 +2351,6 @@ void InternshipSystem::loadAdminsFromFile()
             getline(ss, email, '|');
             getline(ss, password, '|');
 
-            //  admins.push_back(admin);
-            //  Use array indexing
             admins[adminCount++] = new Admin(id, name, email, password);
         }
         file.close();
@@ -2376,10 +2369,9 @@ void InternshipSystem::saveAdminsToFile()
 {
 
     try {
-        ofstream file("admin_login.txt");
+        ofstream file("login_admin.txt"); // 
         if (!file.is_open()) {
-            throw FileException("Cannot open admin_login.txt for writing");
-        }
+            throw FileException("Cannot open login_admin.txt for writing"); // 
 
         for (int i = 0; i < adminCount; i++) {
             saveAdminToFile(*admins[i], file);
@@ -2762,8 +2754,7 @@ void InternshipSystem::selectionSortStudentsByID()
         int minIndex = i;
         for (int j = i + 1; j < studentCount; j++) {
             if (students[j]->getID() < students[minIndex]->getID()) {
-                minIndex = j; // ✅ Fix: Move this inside the if statement
-            }
+                minIndex = j; // 
         }
         if (minIndex != i) {
             Student* temp = students[i];
@@ -2797,7 +2788,7 @@ void InternshipSystem::bubbleSortJobsByDeadline()
 
             }
 
-        }
+
 
     }
 
@@ -3704,12 +3695,6 @@ void InternshipSystem::addInternshipJob()
     cout << "Enter Company: ";
     getline(cin, company);
     cout << "Enter Deadline (YYYY-MM-DD): ";
-    cin >> deadline;
-    cout << "Enter Requirements: ";
-    cin.ignore();
-    getline(cin, requirements);
-    
-    jobs[jobCount++] = new InternshipJob(jobID, title, company, deadline, requirements);
     cin >> deadline;
     cout << "Enter Requirements: ";
     cin.ignore();
