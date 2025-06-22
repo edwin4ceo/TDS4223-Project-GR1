@@ -1231,7 +1231,7 @@ void Admin::manageStudents(InternshipSystem* system)
     cin >> choice;
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-    // std::vector<Student> studentList;
+    
     // Use system's existing student array instead
 
     if (choice == 1) {
