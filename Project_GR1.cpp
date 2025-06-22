@@ -1181,10 +1181,10 @@ bool Admin::login()
         cout << "Enter Password: ";
         cin >> inputPassword;
 
-        ifstream file("login_admin.txt");
+        ifstream file("admin_login.txt");
         if (!file.is_open()) 
         {
-            throw FileException("Cannot open login_admin.txt");
+            throw FileException("Cannot open admin_login.txt");
         }
 
         string line;
@@ -1231,6 +1231,7 @@ void Admin::manageStudents(InternshipSystem* system)
     cin >> choice;
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
+    
     // Use system's existing student array instead
 
     if (choice == 1) {
