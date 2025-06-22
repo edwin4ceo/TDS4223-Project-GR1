@@ -1969,7 +1969,7 @@ void InternshipSystem::initializeSampleData()
     students[studentCount++] = new Student("1231203190", "edwin ceo", "mone@gmail.com", 3.98, "IT", "Java");
     students[studentCount++] = new Student("1231201130", "Riashini a/p Manoj Kumar", "riawee25@gmail.com", 3.7, "IT", "Java, HTML, PHP, C++, Python");
     
-    // ✅ Add sample admins to the system
+    // ? Add sample admins to the system
     admins[adminCount++] = new Admin("admin1", "Admin One", "admin1@mmu.edu.my", "password123");
     admins[adminCount++] = new Admin("admin2", "Admin Two", "admin2@mmu.edu.my", "admin456");
     admins[adminCount++] = new Admin("test", "Test Admin", "test@mmu.edu.my", "123456");
@@ -2207,7 +2207,7 @@ void InternshipSystem::saveStudentsToFile()
         cout << "Saved " << studentCount << " students to file.\n";
         logEvent("SYSTEM", "Students saved to file");
         
-    } catch (const FileException& e) {  // ✅ Fix: Add proper catch block
+    } catch (const FileException& e) {  // ? Fix: Add proper catch block
         cout << "Error: " << e.what() << endl;
         logEvent("ERROR", e.what());
     }
@@ -2745,8 +2745,8 @@ void InternshipSystem::selectionSortStudentsByCGPA()
         }
         if (maxIndex != i) {
             Student* temp = students[i];
-            students[i] = students[maxIndex];  // ✅ Fix this line
-            students[maxIndex] = temp;         // ✅ Fix this line
+            students[i] = students[maxIndex];  // ? Fix this line
+            students[maxIndex] = temp;         // ? Fix this line
         }
     }
     cout << "Students sorted by CGPA.\n";
@@ -3220,7 +3220,7 @@ void InternshipSystem::generateDetailedReport()
         // Diploma distribution
         int itCount = 0, businessCount = 0, accountingCount = 0;
         for (int i = 0; i < studentCount; i++) {
-            string diploma = students[i]->getDiploma(); // ✅ Fix: Use students[i]->getDiploma()
+            string diploma = students[i]->getDiploma(); // ? Fix: Use students[i]->getDiploma()
             if (diploma == "IT") itCount++;
             else if (diploma == "Business") businessCount++;
             else if (diploma == "Accounting") accountingCount++;
