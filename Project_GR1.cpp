@@ -1969,6 +1969,11 @@ void InternshipSystem::initializeSampleData()
     students[studentCount++] = new Student("1231203190", "edwin ceo", "mone@gmail.com", 3.98, "IT", "Java");
     students[studentCount++] = new Student("1231201130", "Riashini a/p Manoj Kumar", "riawee25@gmail.com", 3.7, "IT", "Java, HTML, PHP, C++, Python");
     
+    // ✅ Add sample admins to the system
+    admins[adminCount++] = new Admin("admin1", "Admin One", "admin1@mmu.edu.my", "password123");
+    admins[adminCount++] = new Admin("admin2", "Admin Two", "admin2@mmu.edu.my", "admin456");
+    admins[adminCount++] = new Admin("test", "Test Admin", "test@mmu.edu.my", "123456");
+    
     // Sample staff
     staffMembers[staffCount++] = new Staff("STF1001", "Dr. Lim Wei Chen", "lim.wc@mmu.edu.my", "Career Services", "Manager", "pass123");
     staffMembers[staffCount++] = new Staff("STF1002", "Ms. Nor Azlina", "nor.azlina@mmu.edu.my", "IT Department", "Coordinator", "pwd456");
@@ -2465,7 +2470,7 @@ void InternshipSystem::saveJobsToFile()
             saveJobToFile(*jobs[i], file);
         }
         file.close();
-        //  cout << "Saved " << jobs.size() << " jobs to file.\n";
+        // cout << "Saved " << jobs.size() << " jobs to file.\n";
         // Fix to use jobCount
         cout << "Saved " << jobCount << " jobs to file.\n";
         logEvent("SYSTEM", "Jobs saved to file");
@@ -2754,7 +2759,8 @@ void InternshipSystem::selectionSortStudentsByID()
         int minIndex = i;
         for (int j = i + 1; j < studentCount; j++) {
             if (students[j]->getID() < students[minIndex]->getID()) {
-                minIndex = j; // 
+                minIndex = j;
+            }
         }
         if (minIndex != i) {
             Student* temp = students[i];
@@ -2762,7 +2768,6 @@ void InternshipSystem::selectionSortStudentsByID()
             students[minIndex] = temp;
         }
     }
-   
     cout << "Students sorted by ID.\n";
     logEvent("SYSTEM", "Students sorted by ID");
 }
@@ -2772,29 +2777,17 @@ void InternshipSystem::selectionSortStudentsByID()
 void InternshipSystem::bubbleSortJobsByDeadline() 
 
 {
-   
-
     for (int i = 0; i < jobCount - 1; i++) {
-
         for (int j = 0; j < jobCount - i - 1; j++) {
-
             if (jobs[j]->getDeadline() > jobs[j + 1]->getDeadline()) {
-
                 InternshipJob* temp = jobs[j];
-
                 jobs[j] = jobs[j + 1];
-
                 jobs[j + 1] = temp;
-
             }
-
-
-
+        }
     }
-
     cout << "Jobs sorted by deadline using Bubble Sort.\n";
     logEvent("SYSTEM", "Jobs sorted by deadline");
-
 }
 
 
