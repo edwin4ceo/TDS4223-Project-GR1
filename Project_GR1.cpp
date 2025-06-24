@@ -2672,6 +2672,8 @@ void InternshipSystem::adminMenu()
         cout << "3. View All Applications\n";
         cout << "4. Generate Reports\n";
         cout << "5. Logout\n";
+        cout << "6. Search Students by Diploma\n";
+		cout << "7. Search Jobs by Company\n";
         cout << "Enter choice: ";
         cin >> choice;
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -2689,6 +2691,18 @@ void InternshipSystem::adminMenu()
             case 4:
                 currentAdmin->generateReports();
                 break;
+            case 6: {
+        string diploma;
+        cout << "Enter diploma: ";
+        getline(cin, diploma);
+        searchStudentsByDiploma(diploma);
+        break;}
+            case 7: {
+        string company;
+        cout << "Enter company name: ";
+        getline(cin, company);
+        searchJobsByCompany(company);
+        break;}
             case 5:
                 cout << "Logging out...\n";
                 delete currentAdmin; // Clean up

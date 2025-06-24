@@ -13,3 +13,6 @@ Sun Jun 22 09:29:44 2025 | SYSTEM | Sample data initialized
 Sun Jun 22 09:30:53 2025 | SYSTEM | Sample data initialized
 Sun Jun 22 09:42:06 2025 | SYSTEM | Sample data initialized
 Sun Jun 22 10:07:36 2025 | SYSTEM | Sample data initialized
+Tue Jun 24 17:13:53 2025 | SYSTEM | Sample data initialized
+Tue Jun 24 20:23:01 2025 | SYSTEM | Sample data initialized
+Tue Jun 24 20:23:18 2025 | SEARCH | Students searched by diploma: IT
