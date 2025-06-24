@@ -2595,20 +2595,10 @@ void InternshipSystem::mainMenu()
 
 
 void InternshipSystem::studentMenu() 
-
 {
-
     int choice;
-    //  Remove this - student already logged in from mainMenu
-    // Student* currentStudent = NULL;
-    // for (int i = 0; i < studentCount; i++) {
-    //     if (students[i]->login()) {  // This is duplicate login!
-    //         currentStudent = students[i];
-    //         break;
-    //     }
-    // }
-    
-    // Student already authenticated in mainMenu, just show menu
+    Student tempStudent;
+
     do {
         cout << "\n=== Student Menu ===\n";
         cout << "1. View Internships\n";
@@ -2616,45 +2606,41 @@ void InternshipSystem::studentMenu()
         cout << "3. View My Applications\n";
         cout << "4. Generate Summary Report\n";
         cout << "5. Update Profile\n";
-        cout << "6. Logout\n";
+        cout << "6. Search Jobs by Company\n";
+        cout << "7. Logout\n";
         cout << "Enter choice: ";
         cin >> choice;
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
         switch (choice) {
-            case 1: 
-            {
-                // Create temporary student object for operations
-                Student tempStudent;
+            case 1:
                 tempStudent.viewInternships();
                 break;
-            }
-            case 2: 
-            {
-                Student tempStudent;
+            case 2:
                 tempStudent.applyForInternship();
                 break;
-            }
-            case 3: 
-            {
-                Student tempStudent;
+            case 3:
                 tempStudent.viewMyApplications();
                 break;
-            }
-            case 4: 
-            {
-                Student tempStudent;
+            case 4:
                 tempStudent.generateSummaryReport();
                 break;
-            }
-            case 5: 
-            {
-                Student tempStudent;
+            case 5:
                 tempStudent.updateProfile();
                 break;
-            }
-            case 6: cout << "Logging out...\n"; return;
-            default: cout << "Invalid choice. Please try again.\n";
+            case 6:
+                {
+                    string company;
+                    cout << "Enter company name to search: ";
+                    getline(cin, company);
+                    searchJobsByCompany(company);
+                }
+                break;
+            case 7:
+                cout << "Logging out...\n";
+                return;
+            default:
+                cout << "Invalid choice. Please try again.\n";
         }
     } while (true);
 }
@@ -2737,14 +2723,16 @@ void InternshipSystem::staffMenu(Staff* staff)
         cout << "1. Process Applications\n";
         cout << "2. Generate Department Report\n";
         cout << "3. View Department Internships\n";
-        cout << "4. Logout\n";
+        cout << "4. Search Students by CGPA Range\n";
+        cout << "5. Search Jobs by Company\n";
+        cout << "6. Logout\n";
         cout << "Enter choice: ";
         cin >> choice;
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
         switch (choice) {
             case 1:
-                staff->processApplications(this); // Pass system reference
+                staff->processApplications(this);
                 break;
             case 2:
                 staff->generateDepartmentReport(this);
@@ -2753,15 +2741,33 @@ void InternshipSystem::staffMenu(Staff* staff)
                 staff->viewDepartmentInternships(this);
                 break;
             case 4:
+                {
+                    float minCGPA, maxCGPA;
+                    cout << "Enter minimum CGPA: ";
+                    cin >> minCGPA;
+                    cout << "Enter maximum CGPA: ";
+                    cin >> maxCGPA;
+                    cin.ignore();
+                    searchStudentsByCGPARange(minCGPA, maxCGPA);
+                }
+                break;
+            case 5:
+                {
+                    string company;
+                    cout << "Enter company name: ";
+                    getline(cin, company);
+                    searchJobsByCompany(company);
+                }
+                break;
+            case 6:
                 cout << "Logging out...\n";
-                currentStaff = NULL; // Clear current staff
+                currentStaff = NULL;
                 return;
             default:
                 cout << "Invalid choice. Please try again.\n";
         }
     } while (true);
 }
-
 
 
 // Fix sorting algorithms
