@@ -1554,7 +1554,7 @@ void Staff::processApplications(InternshipSystem* system)
             getline(ss, company, '|');
             getline(ss, status, '|');
 
-            if (company.find(department) != string::npos && status == "Pending") {
+            if (status == "Pending" && (company.find("IT") != string::npos || department.find("IT") != string::npos)){
                 cout << left << setw(12) << studentID
                      << setw(8) << jobID
                      << setw(25) << jobTitle

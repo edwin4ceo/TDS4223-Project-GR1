@@ -16,3 +16,12 @@ Sun Jun 22 10:07:36 2025 | SYSTEM | Sample data initialized
 Tue Jun 24 17:13:53 2025 | SYSTEM | Sample data initialized
 Tue Jun 24 20:23:01 2025 | SYSTEM | Sample data initialized
 Tue Jun 24 20:23:18 2025 | SEARCH | Students searched by diploma: IT
+Tue Jun 24 21:11:45 2025 | SYSTEM | Sample data initialized
+Tue Jun 24 23:05:42 2025 | SEARCH | Jobs searched by company: Google
+Tue Jun 24 23:05:57 2025 | SEARCH | Jobs searched by company: google
+Tue Jun 24 23:06:21 2025 | SEARCH | Jobs searched by company: amazon
+Tue Jun 24 23:06:46 2025 | SEARCH | Jobs searched by company: shopee
+Tue Jun 24 23:06:54 2025 | SEARCH | Jobs searched by company: INT001
+Tue Jun 24 23:09:49 2025 | SEARCH | Jobs searched by company: Shoopee
+Tue Jun 24 23:10:24 2025 | SYSTEM | Sample data initialized
+Tue Jun 24 23:34:17 2025 | SYSTEM | Sample data initialized
