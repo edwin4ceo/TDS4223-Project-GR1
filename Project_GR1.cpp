@@ -10,6 +10,7 @@
 #include <ctime>
 #include <cctype>
 #include <string>
+#include <algorithm> // for transform()
 using namespace std;
 
 // Constants
@@ -294,6 +295,8 @@ private:
     string position;
     string password;
     static int totalStaff;
+    
+    bool isDepartmentMatch(const string& company, const string& department);
 
 public:
     Staff() : Person(), department(""), position(""), password("") { totalStaff++; }
@@ -318,6 +321,16 @@ public:
 
     friend void saveStaffToFile(Staff& staff, ostream& file);
 };
+bool Staff::isDepartmentMatch(const string& company, const string& department) {
+    string c = company;
+    string d = department;
+
+    // Convert both to lowercase
+    transform(c.begin(), c.end(), c.begin(), ::tolower);
+    transform(d.begin(), d.end(), d.begin(), ::tolower);
+
+    return c.find(d) != string::npos || d.find(c) != string::npos;
+}
 
 
 // InternshipJob class
@@ -1554,7 +1567,7 @@ void Staff::processApplications(InternshipSystem* system)
             getline(ss, company, '|');
             getline(ss, status, '|');
 
-            if (status == "Pending" && (company.find("IT") != string::npos || department.find("IT") != string::npos)){
+            if (company.find(department) != string::npos && status == "Pending") {
                 cout << left << setw(12) << studentID
                      << setw(8) << jobID
                      << setw(25) << jobTitle
@@ -1641,7 +1654,7 @@ void Staff::viewDepartmentInternships(InternshipSystem* system)
     int count = 0;
     for (int i = 0; i < system->getJobCount(); i++) {
         InternshipJob* job = system->getJob(i);
-        if (job && job->getCompany().find(department) != string::npos) {
+        if (job && isDepartmentMatch(job->getCompany(), department)) {
             cout << left << setw(8) << job->getJobID()
                  << setw(30) << job->getTitle()
                  << setw(20) << job->getCompany()

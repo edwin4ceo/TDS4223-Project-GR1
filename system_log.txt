@@ -25,3 +25,11 @@ Tue Jun 24 23:06:54 2025 | SEARCH | Jobs searched by company: INT001
 Tue Jun 24 23:09:49 2025 | SEARCH | Jobs searched by company: Shoopee
 Tue Jun 24 23:10:24 2025 | SYSTEM | Sample data initialized
 Tue Jun 24 23:34:17 2025 | SYSTEM | Sample data initialized
+Wed Jun 25 00:25:23 2025 | SYSTEM | Sample data initialized
+Wed Jun 25 00:48:29 2025 | SYSTEM | Sample data initialized
+Wed Jun 25 00:49:19 2025 | SYSTEM | Sample data initialized
+Wed Jun 25 00:49:50 2025 | SYSTEM | Sample data initialized
+Wed Jun 25 00:51:15 2025 | SYSTEM | Sample data initialized
+Wed Jun 25 00:51:50 2025 | SEARCH | Students searched by CGPA range
+Wed Jun 25 00:52:07 2025 | SEARCH | Jobs searched by company: amazon
+Wed Jun 25 00:52:19 2025 | SEARCH | Jobs searched by company: google
